@@ -10,8 +10,8 @@ logger = logging.getLogger(__name__)
 
 
 try:
-    from server.model.predictor import Predictor
-    from server.schemas import PredictionResponse
+    from backend.model.predictor import Predictor
+    from backend.schemas import PredictionResponse
 except ImportError:
 
     class Predictor:
@@ -24,7 +24,7 @@ except ImportError:
             self.confidence = confidence
 
 app = FastAPI(
-    title="Verdant Guardian ML API",
+    title="Green Guardian ML API",
     description="Diagnose plant diseases from leaf images",
     version="0.1.0"
 )
