@@ -83,7 +83,7 @@ export default function App() {
 };
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>🌱 Verdant Guardian</Text>
+      <Text style={styles.header}>🌱 Green Guardian</Text>
       <View style={styles.buttonRow}>
         <TouchableOpacity style={styles.button} onPress={pickImage}>
           <Text style={styles.buttonText}>Pick Image</Text>
