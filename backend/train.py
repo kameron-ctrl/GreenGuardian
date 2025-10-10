@@ -6,9 +6,8 @@ from torch import nn, optim
 from torch.utils.data import DataLoader
 from sklearn.metrics import accuracy_score
 
-#------------------------------
+
 #Config
-#------------------------------
 dataset_path = "dataset"
 train_path = os.path.join(dataset_path, "train")
 val_path = os.path.join(dataset_path, "val")
@@ -19,18 +18,15 @@ epochs = 10
 lr = 1e-3
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
-#------------------------------
 #Image Transformations
-#------------------------------
 def get_transforms():
     return transforms.Compose([
         transforms.Resize((224, 224)),
         transforms.ToTensor(),
     ])
 
-#------------------------------
+
 #Load Datasets
-#------------------------------
 train_ds = datasets.ImageFolder(train_path, transform=get_transforms())
 val_ds = datasets.ImageFolder(val_path, transform=get_transforms())
 test_ds = datasets.ImageFolder(test_path, transform=get_transforms())
@@ -39,9 +35,7 @@ train_loader = DataLoader(train_ds, batch_size=batch_size, shuffle=True)
 val_loader = DataLoader(val_ds, batch_size=batch_size)
 test_loader = DataLoader(test_ds, batch_size=batch_size)
 
-#------------------------------
 #Model Setup
-#------------------------------
 model = models.resnet18(weights=models.ResNet18_Weights.IMAGENET1K_V1)
 model.fc = nn.Linear(model.fc.in_features, len(train_ds.classes))
 model = model.to(device)
@@ -49,9 +43,8 @@ model = model.to(device)
 criterion = nn.CrossEntropyLoss()
 optimizer = optim.Adam(model.parameters(), lr=lr)
 
-#------------------------------
+
 #Training Loop
-#------------------------------
 print("Starting training...")
 for epoch in range(epochs):
     model.train()
@@ -69,9 +62,8 @@ for epoch in range(epochs):
     avg_loss = total_loss / len(train_loader)
     print(f"Epoch {epoch+1}/{epochs} - Training Loss: {avg_loss:.4f}")
 
-#------------------------------
+
 #Save Model + Labels
-#------------------------------
 torch.save(model, "model.pt")
 print("Model saved to model.pt")
 
@@ -79,9 +71,7 @@ os.makedirs("app/model", exist_ok=True)
 with open("app/model/labels.json", "w") as f:
     json.dump({i: cls for i, cls in enumerate(train_ds.classes)}, f, indent=2)
 
-#------------------------------
 #Evaluation on Test Set
-#------------------------------
 model.eval()
 y_true, y_pred = [], []
 
