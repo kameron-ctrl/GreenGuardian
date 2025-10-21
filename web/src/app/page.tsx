@@ -3,7 +3,6 @@ import DiagnoseForm from '../components/DiagnoseForm';
 export default function DiagnosePage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 dark:from-gray-900 dark:via-green-950 dark:to-emerald-950">
-      {/* Header Section */}
       <header className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-green-100 dark:border-green-900 shadow-sm">
         <div className="max-w-6xl mx-auto px-6 py-4">
           <div className="flex items-center gap-3">
@@ -19,20 +18,17 @@ export default function DiagnosePage() {
         </div>
       </header>
 
-      {/* Main Content */}
       <main className="max-w-4xl mx-auto px-6 py-12">
-        {/* Hero Section */}
         <div className="text-center mb-12">
           <h2 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">
             AI-Powered Plant Disease Detection
           </h2>
           <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-            Upload a photo of your plant's leaf and let our AI identify potential diseases instantly.
+            Upload a photo of your plant&apos;s leaf and let our AI identify potential diseases instantly.
             Get accurate diagnoses to keep your plants healthy and thriving.
           </p>
         </div>
 
-        {/* Main Card */}
         <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-2xl shadow-2xl border border-green-100 dark:border-green-900 overflow-hidden">
           <div className="bg-gradient-to-r from-green-500 to-emerald-600 p-6">
             <h3 className="text-2xl font-semibold text-white flex items-center gap-2">
@@ -51,7 +47,6 @@ export default function DiagnosePage() {
           </div>
         </div>
 
-        {/* Features Section */}
         <div className="mt-16 grid md:grid-cols-3 gap-6">
           <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm p-6 rounded-xl border border-green-100 dark:border-green-900 shadow-lg">
             <div className="bg-green-100 dark:bg-green-900 w-12 h-12 rounded-lg flex items-center justify-center mb-4">
@@ -85,7 +80,6 @@ export default function DiagnosePage() {
         </div>
       </main>
 
-      {/* Footer */}
       <footer className="mt-20 bg-white/60 dark:bg-gray-900/60 backdrop-blur-md border-t border-green-100 dark:border-green-900">
         <div className="max-w-6xl mx-auto px-6 py-6 text-center text-gray-600 dark:text-gray-400 text-sm">
           <p>Green Guardian - Protecting your plants with AI technology</p>
