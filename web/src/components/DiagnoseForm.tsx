@@ -19,7 +19,6 @@ export default function DiagnoseForm() {
       setResult(null);
       setError(null);
       
-      // Create preview
       const reader = new FileReader();
       reader.onloadend = () => {
         setPreview(reader.result as string);
@@ -55,7 +54,6 @@ export default function DiagnoseForm() {
   return (
     <div className="space-y-6">
       <form onSubmit={handleSubmit} className="space-y-6">
-        {/* File Upload Area */}
         <div className="relative">
           <label 
             htmlFor="file-upload" 
@@ -114,7 +112,7 @@ export default function DiagnoseForm() {
           </label>
         </div>
 
-        {/* Submit Button */}
+
         <button
           type="submit"
           disabled={!file || loading}
@@ -139,7 +137,7 @@ export default function DiagnoseForm() {
         </button>
       </form>
 
-      {/* Error Message */}
+
       {error && (
         <div className="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-xl p-4 flex items-start gap-3">
           <svg className="w-6 h-6 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -152,7 +150,7 @@ export default function DiagnoseForm() {
         </div>
       )}
 
-      {/* Result */}
+
       {result && <PredictionResult result={result} />}
     </div>
   );
