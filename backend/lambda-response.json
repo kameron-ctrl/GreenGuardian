@@ -1,0 +1,1 @@
+{"errorMessage": "Unable to import module 'lambdahandler': cannot import name 'predict_disease' from 'model.predictor' (/var/task/model/predictor.py)", "errorType": "Runtime.ImportModuleError", "requestId": "", "stackTrace": []}
