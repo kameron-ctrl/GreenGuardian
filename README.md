@@ -16,7 +16,12 @@ Green Guardian is a full-stack, AI-powered mobile and web application that detec
 |  Machine Learning 	|  Pytorch 	|
 |  Database 	|   [PlantVillage](https://www.kaggle.com/datasets/emmarex/plantdisease)	|
 |  Devtools	|  Python, Typescript, CORS, Axios, PIL 	|
+|  Dev Ops | Docker, Amazon Web Services AWS|
 
+## WEBSITE URL
+http://green-guardian-web.s3-website-us-east-1.amazonaws.com/ 
+
+# If you want to run locally, follow these steps!
 
 ## Set Up Backend!
 1. Clone the repo 
@@ -65,8 +70,6 @@ With your actual IP addresss
 
 
 # Works in progress!
-- Better UI for the frontend
 - Advice based on prediction
 - Image history and Prediction logging
-- Dark mode
 - Better trained data
