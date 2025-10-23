@@ -2,7 +2,7 @@
 import { PredictionResponse } from '../types/prediction';
 
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://qfpsilmnvg.execute-api.us-east-1.amazonaws.com';
 
 export async function getPrediction(file: File): Promise<PredictionResponse> {
   const formData = new FormData();
