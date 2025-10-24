@@ -1,5 +1,10 @@
-
 FROM public.ecr.aws/lambda/python:3.9
+
+
+COPY --from=public.ecr.aws/awsguru/aws-lambda-adapter:0.8.3 /lambda-adapter /opt/extensions/lambda-adapter
+
+
+ENV PORT=8000
 
 
 COPY requirements.txt .
@@ -8,8 +13,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY main.py ${LAMBDA_TASK_ROOT}/
 COPY schemas.py ${LAMBDA_TASK_ROOT}/
-COPY lambdahandler.py ${LAMBDA_TASK_ROOT}/
 COPY model/ ${LAMBDA_TASK_ROOT}/model/
 
 
-CMD ["lambdahandler.handler"]
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
