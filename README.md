@@ -1,12 +1,13 @@
 # Green Guardian
-Green Guardian is a full-stack, AI-powered mobile and web application that detects disease from pictures of plant leaves. The model identifies over
+Green Guardian is a full-stack, AI-powered mobile and web application that detects plant diseases from images of plant leaves. The model identifies over
 30 different disease classes and return fast, real-time predictions with confidence levels included. 
 
 - Mobile image capture using Expo React Native
 - FastAPI backend that uses PyTorch modeling
 - Using ML, which creates custom data splitting, training, and testing
-- Supports .jpg, .jpeg, .png and .heic files
+- Supports .jpg, .jpeg, .png, and .heic files
 - Designed for local hosting (for now)
+- Now hosted using AWS lambda!!
 
 ## Tech Stack 
 |  Layer 	|  Technology 	|
@@ -16,11 +17,11 @@ Green Guardian is a full-stack, AI-powered mobile and web application that detec
 |  Machine Learning 	|  Pytorch 	|
 |  Database 	|   [PlantVillage](https://www.kaggle.com/datasets/emmarex/plantdisease)	|
 |  Devtools	|  Python, Typescript, CORS, Axios, PIL 	|
-|  Dev Ops | Docker, Amazon Web Services AWS|
+|  Dev Ops | Docker, Amazon Web Services AWS, CloudFront, Github Actions|
 
-## WEBSITE URL
-http://green-guardian-web.s3-website-us-east-1.amazonaws.com/ 
-
+## WEBSITE!!!
+[GREEN GUARDIAN
+](https://d25t8i75m01j.cloudfront.net/)
 # If you want to run locally, follow these steps!
 
 ## Set Up Backend!
@@ -73,3 +74,4 @@ With your actual IP addresss
 - Advice based on prediction
 - Image history and Prediction logging
 - Better trained data
+- Better UI
