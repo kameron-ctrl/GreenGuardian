@@ -36,7 +36,7 @@ export default function DiagnosePage() {
             </p>
           </div>
 
-          <SpotlightCard className="max-w-5xl w-full h-[600px] mx-auto bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm rounded-3xl shadow-2xl border border-white/30 dark:border-green-900/30 overflow-hidden">
+          <SpotlightCard className="max-w-5xl w-full mx-auto bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm rounded-3xl shadow-2xl border border-white/30 dark:border-green-900/30 overflow-hidden">
             <div className="bg-gradient-to-r from-green-500 to-emerald-600 p-6 rounded-3xl">
               <h3 className="text-2xl font-semibold text-white">
                 Diagnose Your Plant
