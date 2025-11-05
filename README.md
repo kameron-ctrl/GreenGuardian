@@ -19,8 +19,8 @@ Green Guardian is a full-stack, AI-powered mobile and web application that detec
 |  Dev Ops | Docker, Amazon Web Services AWS|
 
 ## WEBSITE URL
-http://green-guardian-web.s3-website-us-east-1.amazonaws.com/ 
-
+[Green Guardian 
+](https://d25t8i75m01j.cloudfront.net/)
 # If you want to run locally, follow these steps!
 
 ## Set Up Backend!
