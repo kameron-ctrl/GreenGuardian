@@ -17,7 +17,9 @@ jobs:
     runs-on: ubuntu-latest
     if: |
       github.event_name == 'workflow_dispatch' ||
-      contains(join(github.event.commits.*.modified, ' '), 'backend/')
+      contains(join(github.event.commits.*.modified, ' '), 'backend/') ||
+      contains(join(github.event.commits.*.added, ' '), 'backend/') ||
+      contains(join(github.event.commits.*.removed, ' '), 'backend/')
 
     steps:
       - name: Checkout code
@@ -67,7 +69,9 @@ jobs:
     runs-on: ubuntu-latest
     if: |
       github.event_name == 'workflow_dispatch' ||
-      contains(join(github.event.commits.*.modified, ' '), 'web/')
+      contains(join(github.event.commits.*.modified, ' '), 'web/') ||
+      contains(join(github.event.commits.*.added, ' '), 'web/') ||
+      contains(join(github.event.commits.*.removed, ' '), 'web/')
 
     steps:
       - name: Checkout code
