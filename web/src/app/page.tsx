@@ -1,136 +1,176 @@
-import DiagnoseForm from "../components/DiagnoseForm";
-import SpotlightCard from "../components/SpotlightCard";
+'use client';
+
+import { useState } from 'react';
+import { getPrediction } from '../lib/api';
+import { PredictionResponse } from '../types/prediction';
+import DiagnoseForm from '../components/DiagnoseForm';
+import PredictionResult from '../components/PredictionResult';
+import RecentScans, { ScanRecord } from '../components/RecentScans';
 
 export default function DiagnosePage() {
+  const [result, setResult] = useState<PredictionResponse | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [scans, setScans] = useState<ScanRecord[]>([]);
+
+  const handleDiagnose = async (file: File) => {
+    setLoading(true);
+    setError(null);
+    setResult(null);
+    try {
+      const prediction = await getPrediction(file);
+      setResult(prediction);
+      setScans((prev) => [
+        {
+          id: Date.now().toString(),
+          label: prediction.label,
+          confidence: prediction.confidence,
+          timestamp: new Date(),
+          fileName: file.name,
+        },
+        ...prev.slice(0, 9),
+      ]);
+    } catch {
+      setError('Diagnosis failed. Please try a clearer photo.');
+    }
+    setLoading(false);
+  };
+
   return (
-    <div className="min-h-screen relative">
-      {/* Background Image */}
-      <div
-        className="absolute inset-0 bg-cover bg-center bg-fixed bg-no-repeat"
-        style={{ backgroundImage: "url(/background3.jpg)" }}
-      ></div>
-      {/* Dark overlay for better text readability */}
-      <div className="absolute inset-0 bg-black/40"></div>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', background: 'var(--background)' }}>
 
-      {/* All content wrapped in relative container for z-index control */}
-      <div className="relative z-10">
-        <header className="bg-white/10 dark:bg-gray-900/30 backdrop-blur-md border-b border-white/20 dark:border-green-900/30 shadow-sm">
-          <div className="max-w-6xl mx-auto px-6 py-4">
-            <div className="flex items-center justify-center gap-3">
-              <h1 className="text-6xl font-bold text-white drop-shadow-lg">
-                Green Guardian
-              </h1>
-            </div>
+      {/* Nav */}
+      <nav style={{
+        background: 'var(--surface)',
+        borderBottom: '1px solid var(--border)',
+        padding: '14px 28px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        flexShrink: 0,
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <div style={{
+            width: 32, height: 32,
+            background: 'var(--green-light)',
+            borderRadius: '50%',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+              <path d="M12 21C8 21 4 17 4 12C4 8 7 4 12 4C17 4 20 8 20 12C20 17 16 21 12 21Z" fill="#c0e0a0"/>
+              <path d="M9 15C10.5 12 13 9 17 8C17 12 15 16 11 18L9 15Z" fill="#3a7a28"/>
+              <path d="M11 18C11 16.5 11.5 15 12.5 13.5" stroke="#2a5a1a" strokeWidth="1.2" strokeLinecap="round"/>
+            </svg>
           </div>
-        </header>
+          <span style={{ fontFamily: "'Lora', Georgia, serif", fontSize: 17, color: 'var(--text-primary)' }}>
+            Green Guardian
+          </span>
+        </div>
+        <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>Your plant health companion</span>
+      </nav>
 
-        <main className="max-w-4xl mx-auto px-6 py-12">
-          <div className="text-center mb-12">
-            <h2 className="text-4xl md:text-5xl font-bold text-white mb-4 drop-shadow-lg">
-              Diagnose Plant Diseases with AI
-            </h2>
-            <p className="text-lg text-white/90 max-w-2xl mx-auto drop-shadow-md">
-              Upload a photo of your plant&apos;s leaf and let our AI identify
-              potential diseases instantly. Get accurate diagnoses to keep your
-              plants healthy and thriving.
-            </p>
+      {/* Split body */}
+      <div style={{
+        flex: 1,
+        display: 'grid',
+        gridTemplateColumns: '1fr 1fr',
+        minHeight: 0,
+        overflow: 'hidden',
+      }}>
+
+        {/* Left panel */}
+        <div style={{
+          background: 'var(--surface)',
+          borderRight: '1px solid var(--border)',
+          padding: '28px 24px',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 18,
+          overflowY: 'auto',
+        }}>
+          <span style={{
+            fontSize: 10, fontWeight: 700, letterSpacing: '1.4px',
+            color: 'var(--text-faint)', textTransform: 'uppercase',
+          }}>
+            01 — Upload specimen
+          </span>
+
+          <DiagnoseForm onDiagnose={handleDiagnose} loading={loading} />
+
+          {/* Recent scans divider */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <div style={{ flex: 1, height: 1, background: 'var(--border)' }} />
+            <span style={{
+              fontSize: 10, fontWeight: 700, letterSpacing: '1.2px',
+              color: 'var(--text-faint)', textTransform: 'uppercase',
+            }}>Recent scans</span>
+            <div style={{ flex: 1, height: 1, background: 'var(--border)' }} />
           </div>
 
-          <SpotlightCard className="max-w-5xl w-full mx-auto bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm rounded-3xl shadow-2xl border border-white/30 dark:border-green-900/30 overflow-hidden">
-            <div className="bg-gradient-to-r from-green-500 to-emerald-600 p-6 rounded-3xl">
-              <h3 className="text-2xl font-semibold text-white">
-                Diagnose Your Plant
-              </h3>
-              <p className="text-green-50 mt-2">
-                Upload a clear image of the affected leaf for best results
-              </p>
-            </div>
+          <RecentScans scans={scans} onClear={() => setScans([])} />
+        </div>
 
-            <div className="p-8">
-              <DiagnoseForm />
-            </div>
-          </SpotlightCard>
+        {/* Right panel */}
+        <div style={{
+          background: 'var(--background)',
+          padding: '28px 24px',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 16,
+          overflowY: 'auto',
+        }}>
+          <span style={{
+            fontSize: 10, fontWeight: 700, letterSpacing: '1.4px',
+            color: 'var(--text-faint)', textTransform: 'uppercase',
+          }}>
+            02 — Diagnosis
+          </span>
 
-          <div className="mt-16 grid md:grid-cols-3 gap-6">
-            <SpotlightCard className="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20 hover:bg-white/20 transition-all duration-300">
-              <div className="bg-green-100 dark:bg-green-900 w-12 h-12 rounded-lg flex items-center justify-center mb-4">
-                <svg
-                  className="w-6 h-6 text-green-600 dark:text-green-400"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M13 10V3L4 14h7v7l9-11h-7z"
-                  />
+          {error && (
+            <div style={{
+              background: '#fff5f5',
+              border: '1px solid #fecaca',
+              borderRadius: 12,
+              padding: '14px 18px',
+              fontSize: 13,
+              color: '#b91c1c',
+              fontWeight: 600,
+            }}>
+              {error}
+            </div>
+          )}
+
+          {!result && !error && (
+            <div style={{
+              flex: 1,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 12,
+              opacity: 0.4,
+              padding: '60px 20px',
+              textAlign: 'center',
+            }}>
+              <div style={{
+                width: 52, height: 52,
+                border: '1.5px solid var(--green-dark)',
+                borderRadius: '50%',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}>
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--green-dark)" strokeWidth="1.5">
+                  <path d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"/>
                 </svg>
               </div>
-              <h4 className="text-lg font-semibold text-white mb-2 drop-shadow-md">
-                Instant Results
-              </h4>
-              <p className="text-white/80 text-sm drop-shadow-sm">
-                Get AI-powered diagnoses in seconds
+              <p style={{ fontSize: 13, color: 'var(--text-body)', lineHeight: 1.6 }}>
+                Upload a leaf photo and hit<br /><strong>Analyze specimen</strong> to see your diagnosis here.
               </p>
-            </SpotlightCard>
+            </div>
+          )}
 
-            <SpotlightCard className="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20 hover:bg-white/20 transition-all duration-300">
-              <div className="bg-green-100 dark:bg-green-900 w-12 h-12 rounded-lg flex items-center justify-center mb-4">
-                <svg
-                  className="w-6 h-6 text-green-600 dark:text-green-400"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
-                  />
-                </svg>
-              </div>
-              <h4 className="text-lg font-semibold text-white mb-2 drop-shadow-md">
-                High Accuracy
-              </h4>
-              <p className="text-white/80 text-sm drop-shadow-sm">
-                Advanced ML models for reliable detection
-              </p>
-            </SpotlightCard>
+          {result && <PredictionResult result={result} />}
+        </div>
 
-            <SpotlightCard className="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20 hover:bg-white/20 transition-all duration-300">
-              <div className="bg-green-100 dark:bg-green-900 w-12 h-12 rounded-lg flex items-center justify-center mb-4">
-                <svg
-                  className="w-6 h-6 text-green-600 dark:text-green-400"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
-                  />
-                </svg>
-              </div>
-              <h4 className="text-lg font-semibold text-white mb-2 drop-shadow-md">
-                Easy to Use
-              </h4>
-              <p className="text-white/80 text-sm drop-shadow-sm">
-                Simple upload process, no expertise needed
-              </p>
-            </SpotlightCard>
-          </div>
-        </main>
-
-        <footer className="mt-20 bg-white/10 dark:bg-gray-900/20 backdrop-blur-md border-t border-white/20 dark:border-green-900/30">
-          <div className="max-w-6xl mx-auto px-6 py-6 text-center text-white/80 text-sm drop-shadow-md">
-            <p>Green Guardian - Protecting your plants with AI technology</p>
-          </div>
-        </footer>
       </div>
     </div>
   );

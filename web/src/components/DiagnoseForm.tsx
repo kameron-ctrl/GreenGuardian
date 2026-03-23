@@ -1,157 +1,222 @@
 'use client';
 
-import { useState } from 'react';
-import { getPrediction } from '../lib/api';
-import PredictionResult from './PredictionResult';
-import { PredictionResponse } from '../types/prediction';
+import { useState, useRef } from 'react';
 
-export default function DiagnoseForm() {
-  const [file, setFile] = useState<File | null>(null); 
+interface Props {
+  onDiagnose: (file: File) => void;
+  loading: boolean;
+}
+
+export default function DiagnoseForm({ onDiagnose, loading }: Props) {
+  const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState<PredictionResponse | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [dragOver, setDragOver] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const selectedFile = e.target.files[0];
-      setFile(selectedFile);
-      setResult(null);
-      setError(null);
-      
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setPreview(reader.result as string);
-      };
-      reader.readAsDataURL(selectedFile);
-    }
+  const handleFile = (selected: File) => {
+    setFile(selected);
+    const reader = new FileReader();
+    reader.onloadend = () => setPreview(reader.result as string);
+    reader.readAsDataURL(selected);
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files?.[0]) handleFile(e.target.files[0]);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
-    if (!file) return;
-
-    setLoading(true);
-    setError(null);
-
-    try {
-      const prediction = await getPrediction(file);
-      setResult(prediction);
-    } catch (err) {
-      setError('Prediction failed. Please try again with a different image.');
-    }
-
-    setLoading(false);
+    setDragOver(false);
+    if (e.dataTransfer.files?.[0]) handleFile(e.dataTransfer.files[0]);
   };
 
   const handleReset = () => {
     setFile(null);
     setPreview(null);
-    setResult(null);
-    setError(null);
+    if (inputRef.current) inputRef.current.value = '';
+  };
+
+  const handleSubmit = () => {
+    if (file && !loading) onDiagnose(file);
   };
 
   return (
-    <div className="space-y-6">
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="relative">
-          <label 
-            htmlFor="file-upload" 
-            className="flex flex-col items-center justify-center w-full h-64 border-2 border-dashed border-green-300 dark:border-green-700 rounded-xl cursor-pointer bg-green-50/50 dark:bg-green-950/30 hover:bg-green-100/50 dark:hover:bg-green-900/30 transition-all duration-200"
-          >
-            {preview ? (
-              <div className="relative w-full h-full p-4">
-                <img 
-                  src={preview} 
-                  alt="Preview" 
-                  className="w-full h-full object-contain rounded-lg"
-                />
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    handleReset();
-                  }}
-                  className="absolute top-6 right-6 bg-red-500 text-white p-2 rounded-full hover:bg-red-600 transition-colors shadow-lg"
-                >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-              </div>
-            ) : (
-              <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                <svg 
-                  className="w-16 h-16 mb-4 text-green-500 dark:text-green-400" 
-                  fill="none" 
-                  stroke="currentColor" 
-                  viewBox="0 0 24 24"
-                >
-                  <path 
-                    strokeLinecap="round" 
-                    strokeLinejoin="round" 
-                    strokeWidth={2} 
-                    d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" 
-                  />
-                </svg>
-                <p className="mb-2 text-lg font-semibold text-gray-700 dark:text-gray-300">
-                  Click to upload or drag and drop
-                </p>
-                <p className="text-sm text-gray-500 dark:text-gray-400">
-                  PNG, JPG or JPEG (MAX. 10MB)
-                </p>
-              </div>
-            )}
-            <input
-              id="file-upload"
-              type="file"
-              accept="image/jpeg,image/png,image/jpg"
-              onChange={handleFileChange}
-              className="hidden"
-            />
-          </label>
-        </div>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 14, flex: 1 }}>
 
-
-        <button
-          type="submit"
-          disabled={!file || loading}
-          className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-semibold px-6 py-4 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 disabled:transform-none flex items-center justify-center gap-2"
-        >
-          {loading ? (
-            <>
-              <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-              </svg>
-              Analyzing Image...
-            </>
-          ) : (
-            <>
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              Diagnose Plant Disease
-            </>
+      {/* Upload zone / preview */}
+      {preview ? (
+        <div style={{
+          flex: 1,
+          minHeight: 220,
+          borderRadius: 14,
+          overflow: 'hidden',
+          position: 'relative',
+          background: '#1a2818',
+          border: '1px solid var(--border-strong)',
+        }}>
+          {/* Scan line animation */}
+          {loading && (
+            <div style={{
+              position: 'absolute',
+              top: 0, left: 0, right: 0,
+              height: 2,
+              background: 'var(--scan-green)',
+              boxShadow: '0 0 8px var(--scan-green)',
+              animation: 'scanLine 2.2s ease-in-out infinite',
+              zIndex: 10,
+            }} />
           )}
-        </button>
-      </form>
-
-
-      {error && (
-        <div className="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-xl p-4 flex items-start gap-3">
-          <svg className="w-6 h-6 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-          <div>
-            <p className="font-semibold text-red-800 dark:text-red-300">Error</p>
-            <p className="text-red-700 dark:text-red-400 text-sm">{error}</p>
+          <img
+            src={preview}
+            alt="Leaf preview"
+            style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', minHeight: 220 }}
+          />
+          {/* Overlay */}
+          <div style={{
+            position: 'absolute',
+            bottom: 0, left: 0, right: 0,
+            padding: '28px 14px 12px',
+            background: 'linear-gradient(transparent, rgba(10,20,8,0.82))',
+            display: 'flex',
+            alignItems: 'flex-end',
+            justifyContent: 'space-between',
+          }}>
+            <span style={{ fontSize: 11, fontWeight: 600, color: '#9fca8f', fontFamily: 'monospace' }}>
+              {file?.name}
+            </span>
+            <button
+              onClick={handleReset}
+              style={{
+                background: 'rgba(200,50,50,0.8)',
+                border: 'none',
+                borderRadius: '50%',
+                width: 28, height: 28,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                cursor: 'pointer', color: '#fff',
+              }}
+            >
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                <path d="M18 6L6 18M6 6l12 12"/>
+              </svg>
+            </button>
           </div>
         </div>
+      ) : (
+        <label
+          htmlFor="file-upload"
+          onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+          onDragLeave={() => setDragOver(false)}
+          onDrop={handleDrop}
+          style={{
+            flex: 1,
+            minHeight: 220,
+            border: `1.5px dashed ${dragOver ? 'var(--green-dark)' : '#c8d9b8'}`,
+            borderRadius: 16,
+            background: dragOver ? 'var(--green-light)' : 'var(--surface-subtle)',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 12,
+            cursor: 'pointer',
+            padding: '24px',
+            transition: 'all 0.15s ease',
+          }}
+        >
+          <div style={{
+            width: 56, height: 56,
+            background: '#eef7e6',
+            borderRadius: '50%',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}>
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#3a7a20" strokeWidth="1.5">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="17 8 12 3 7 8"/>
+              <line x1="12" y1="3" x2="12" y2="15"/>
+            </svg>
+          </div>
+          <div style={{ textAlign: 'center' }}>
+            <p style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 4 }}>
+              Click to upload or drag & drop
+            </p>
+            <p style={{ fontSize: 12, color: 'var(--text-muted)', lineHeight: 1.5 }}>
+              Take a clear, close-up photo of the affected leaf.<br />Good lighting makes a big difference!
+            </p>
+          </div>
+          <span style={{
+            background: 'var(--green-dark)',
+            color: '#fff',
+            border: 'none',
+            borderRadius: 24,
+            padding: '9px 22px',
+            fontSize: 13,
+            fontWeight: 700,
+            cursor: 'pointer',
+            fontFamily: 'inherit',
+          }}>
+            Choose photo
+          </span>
+          <input
+            ref={inputRef}
+            id="file-upload"
+            type="file"
+            accept="image/jpeg,image/png,image/jpg"
+            onChange={handleChange}
+            style={{ display: 'none' }}
+          />
+        </label>
       )}
 
+      {/* Analyze button */}
+      <button
+        onClick={handleSubmit}
+        disabled={!file || loading}
+        style={{
+          width: '100%',
+          padding: 13,
+          borderRadius: 12,
+          background: file && !loading ? 'var(--green-dark)' : '#b0c8a0',
+          border: 'none',
+          fontFamily: "'Nunito', sans-serif",
+          fontSize: 14,
+          fontWeight: 700,
+          color: '#fff',
+          cursor: file && !loading ? 'pointer' : 'not-allowed',
+          letterSpacing: '0.2px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: 8,
+          transition: 'background 0.15s ease',
+        }}
+      >
+        {loading ? (
+          <>
+            <svg style={{ animation: 'spin 1s linear infinite' }} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+              <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
+            </svg>
+            Analyzing...
+          </>
+        ) : (
+          <>
+            Analyze specimen
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+              <path d="M5 12h14M12 5l7 7-7 7"/>
+            </svg>
+          </>
+        )}
+      </button>
 
-      {result && <PredictionResult result={result} />}
+      <style>{`
+        @keyframes scanLine {
+          0%, 100% { top: 0; opacity: 1; }
+          50% { top: calc(100% - 2px); opacity: 0.5; }
+        }
+        @keyframes spin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+      `}</style>
     </div>
   );
 }

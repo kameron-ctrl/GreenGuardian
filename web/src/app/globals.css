@@ -1,86 +1,61 @@
 @import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&family=Nunito:wght@400;500;600;700&display=swap');
 
 :root {
-  --background: #f8fdf8;
-  --foreground: #1a1a1a;
-  --primary: #09451f;
-  --primary-dark: #0c5c29;
-  --secondary: #84cc16;
-  --accent: #22c55e;
-  --card-bg: #ffffff;
-  --border: #e5e7eb;
-  --shadow: rgba(0, 0, 0, 0.1);
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-  --font-sans: var(--font-noto-sans);
-  --font-ibm-plex-sans: var(--font-ibm-plex-sans);
-  
+  --background: #fdf8f0;
+  --surface: #ffffff;
+  --surface-subtle: #fafdf7;
+  --border: #ede6d6;
+  --border-strong: #e0d4be;
+  --text-primary: #2c4a1e;
+  --text-body: #5a4e3a;
+  --text-muted: #9a8a6e;
+  --text-faint: #a09070;
+  --green-dark: #3a6e28;
+  --green-mid: #3a7a20;
+  --green-light: #e4f2d8;
+  --green-pill-text: #2a5e18;
+  --bar-bg: #f0e8d8;
+  --scan-green: #5aaa38;
+  --history-border: #f5ede0;
+  --conf-label: #8a7a5e;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0f1410;
-    --foreground: #e8f5e9;
-    --primary: #22c55e;
-    --primary-dark: #16a34a;
-    --secondary: #a3e635;
-    --accent: #4ade80;
-    --card-bg: #1a2318;
-    --border: #2d3a2d;
-    --shadow: rgba(0, 0, 0, 0.3);
+    --background: #111a0d;
+    --surface: #1a2614;
+    --surface-subtle: #162010;
+    --border: #2a3a20;
+    --border-strong: #324428;
+    --text-primary: #d4e8c0;
+    --text-body: #b0c89a;
+    --text-muted: #7a9a60;
+    --text-faint: #6a8a50;
+    --green-dark: #5aaa38;
+    --green-mid: #5aaa38;
+    --green-light: #1e3418;
+    --green-pill-text: #a0e070;
+    --bar-bg: #2a3a20;
+    --scan-green: #7acc50;
+    --history-border: #243018;
+    --conf-label: #7a9a60;
   }
+}
+
+* {
+  box-sizing: border-box;
 }
 
 body {
   background: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-geist-sans), -apple-system, BlinkMacSystemFont,
-    "Segoe UI", sans-serif;
+  color: var(--text-body);
+  font-family: 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
   min-height: 100vh;
-}
-h1, h2, h3, h4, h5, h6 {
-  font-family: var(--noto-sans), -apple-system, BlinkMacSystemFont,
-    "Segoe UI", sans-serif;
-}
-input[type="file"]::file-selector-button {
-  background: var(--primary);
-  color: white;
-  border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 0.5rem;
-  cursor: pointer;
-  font-weight: 500;
-  transition: all 0.2s;
-  margin-right: 1rem;
+  -webkit-font-smoothing: antialiased;
 }
 
-input[type="file"]::file-selector-button:hover {
-  background: var(--primary-dark);
-  transform: translateY(-1px);
-}
-
-* {
-  transition: background-color 0.2s ease, border-color 0.2s ease;
-}
-
-::-webkit-scrollbar {
-  width: 10px;
-}
-
-::-webkit-scrollbar-track {
-  background: var(--background);
-}
-
-::-webkit-scrollbar-thumb {
-  background: var(--primary);
-  border-radius: 5px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: var(--primary-dark);
+h1, h2, h3, h4 {
+  font-family: 'Lora', Georgia, serif;
+  color: var(--text-primary);
 }
