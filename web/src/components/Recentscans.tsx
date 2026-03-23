@@ -1,3 +1,5 @@
+// recent scans heeee
+
 'use client';
 
 export interface ScanRecord {
