@@ -12,14 +12,28 @@ env:
   LAMBDA_FUNCTION_NAME: green-guardian-api
 
 jobs:
+  changes:
+    name: Detect changed paths
+    runs-on: ubuntu-latest
+    outputs:
+      backend: ${{ steps.filter.outputs.backend }}
+      frontend: ${{ steps.filter.outputs.frontend }}
+    steps:
+      - uses: actions/checkout@v3
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            backend:
+              - 'backend/**'
+            frontend:
+              - 'web/**'
+
   deploy-backend:
     name: Build and Deploy Backend
     runs-on: ubuntu-latest
-    if: |
-      github.event_name == 'workflow_dispatch' ||
-      contains(join(github.event.commits.*.modified, ' '), 'backend/') ||
-      contains(join(github.event.commits.*.added, ' '), 'backend/') ||
-      contains(join(github.event.commits.*.removed, ' '), 'backend/')
+    needs: changes
+    if: needs.changes.outputs.backend == 'true' || github.event_name == 'workflow_dispatch'
 
     steps:
       - name: Checkout code
@@ -67,11 +81,8 @@ jobs:
   deploy-frontend:
     name: Build and Deploy Frontend
     runs-on: ubuntu-latest
-    if: |
-      github.event_name == 'workflow_dispatch' ||
-      contains(join(github.event.commits.*.modified, ' '), 'web/') ||
-      contains(join(github.event.commits.*.added, ' '), 'web/') ||
-      contains(join(github.event.commits.*.removed, ' '), 'web/')
+    needs: changes
+    if: needs.changes.outputs.frontend == 'true' || github.event_name == 'workflow_dispatch'
 
     steps:
       - name: Checkout code
