@@ -3,86 +3,142 @@
 import { useState } from 'react';
 import { PredictionResponse } from '../types/prediction';
 
-// Maps disease label keywords to example descriptions and color hints
-// Swap SVG placeholders for real images by adding /public/disease-examples/<key>-{1,2,3}.jpg
+/* ── Label formatting ── */
+const LABEL_MAP: Record<string, string> = {
+  'Pepper__bell___Bacterial_spot': 'Bell Pepper — Bacterial Spot',
+  'Pepper__bell___healthy': 'Bell Pepper — Healthy',
+  'Potato___Early_blight': 'Potato — Early Blight',
+  'Potato___Late_blight': 'Potato — Late Blight',
+  'Potato___healthy': 'Potato — Healthy',
+  'Tomato_Bacterial_spot': 'Tomato — Bacterial Spot',
+  'Tomato_Early_blight': 'Tomato — Early Blight',
+  'Tomato_Late_blight': 'Tomato — Late Blight',
+  'Tomato_Leaf_Mold': 'Tomato — Leaf Mold',
+  'Tomato_Septoria_leaf_spot': 'Tomato — Septoria Leaf Spot',
+  'Tomato_Spider_mites_Two_spotted_spider_mite': 'Tomato — Spider Mites',
+  'Tomato__Target_Spot': 'Tomato — Target Spot',
+  'Tomato__Tomato_YellowLeaf__Curl_Virus': 'Tomato — Yellow Leaf Curl Virus',
+  'Tomato__Tomato_mosaic_virus': 'Tomato — Mosaic Virus',
+  'Tomato_healthy': 'Tomato — Healthy',
+};
+
+export function formatLabel(raw: string): string {
+  return LABEL_MAP[raw] || raw.replace(/_{2,}/g, ' — ').replace(/_/g, ' ');
+}
+
+/* ── Disease info database ── */
 const DISEASE_INFO: Record<string, {
   about: string;
-  examples: { caption: string }[];
-  treatment: { title: string; detail: string }[];
+  treatment: string[];
 }> = {
   default: {
-    about: 'Our AI has identified a disease pattern in this leaf. Examine the affected areas closely — early intervention gives the best chance of recovery.',
-    examples: [
-      { caption: 'Early lesions' },
-      { caption: 'Spreading stage' },
-      { caption: 'Advanced stage' },
-    ],
+    about: 'Our AI has identified a condition in this leaf specimen. Examine the affected areas closely — early intervention gives the best chance of recovery.',
     treatment: [
-      { title: 'Remove affected leaves', detail: 'Pick off and bag visibly diseased leaves — do not compost them.' },
-      { title: 'Apply appropriate treatment', detail: 'Consult a nursery for the correct fungicide or pesticide for this specific condition.' },
-      { title: 'Adjust watering', detail: 'Water at the base, not overhead. Wet foliage encourages spread.' },
-      { title: 'Improve airflow', detail: 'Prune and space plants to reduce humidity around leaves.' },
-      { title: 'Monitor weekly', detail: 'Check for new symptoms every few days and re-treat if needed.' },
+      'Remove and dispose of affected foliage immediately',
+      'Apply appropriate fungicide or pesticide as recommended',
+      'Avoid overhead watering; water at soil level',
+      'Ensure adequate plant spacing for airflow',
+      'Monitor weekly and re-treat if symptoms persist',
     ],
   },
   'early blight': {
-    about: 'Early blight is caused by the fungus Alternaria solani. Look for dark, bullseye-patterned spots — usually appearing on older lower leaves first. It spreads fast in warm, wet weather but is very treatable when caught early.',
-    examples: [
-      { caption: 'Bullseye rings' },
-      { caption: 'Leaf spots' },
-      { caption: 'Advanced stage' },
-    ],
+    about: 'Alternaria solani — fungal infection causing concentric ring lesions. Commonly appears on lower, older leaves first and spreads upward under warm, humid conditions.',
     treatment: [
-      { title: 'Remove affected leaves', detail: 'Pick off and bag any visibly spotted leaves — do not compost them or the spores will spread.' },
-      { title: 'Apply copper fungicide', detail: 'Use a copper-based fungicide every 7–10 days. Spray both sides of remaining leaves thoroughly.' },
-      { title: 'Change how you water', detail: 'Water at the base only — wet leaves make it significantly worse. Morning watering gives leaves time to dry.' },
-      { title: 'Improve airflow', detail: 'Prune lower foliage and give crowded plants more space — poor circulation lets blight take hold fast.' },
-      { title: 'Monitor weekly', detail: 'Check for new spots every few days. If it persists after 2–3 treatments, consult a local nursery.' },
+      'Remove and dispose of affected foliage immediately',
+      'Apply copper-based fungicide every 7–10 days',
+      'Avoid overhead watering; water at soil level',
+      'Ensure adequate plant spacing for airflow',
+      'Monitor weekly and re-treat if symptoms persist',
     ],
   },
   'late blight': {
-    about: 'Late blight (Phytophthora infestans) is a serious disease causing water-soaked dark lesions on leaves and stems. It spreads extremely rapidly in cool, wet conditions and was responsible for the Irish potato famine.',
-    examples: [
-      { caption: 'Water-soaked spots' },
-      { caption: 'Dark lesions' },
-      { caption: 'White mold edge' },
-    ],
+    about: 'Phytophthora infestans — aggressive oomycete causing water-soaked dark lesions on leaves and stems. Spreads extremely rapidly in cool, wet conditions and can destroy crops within days.',
     treatment: [
-      { title: 'Act immediately', detail: 'Late blight spreads fast — begin treatment the same day you notice symptoms.' },
-      { title: 'Apply systemic fungicide', detail: 'Use a fungicide containing chlorothalonil or mancozeb. Repeat every 5–7 days.' },
-      { title: 'Remove severely infected plants', detail: 'If more than 30% of the plant is affected, remove it entirely to protect neighbors.' },
-      { title: 'Avoid overhead watering', detail: 'Water at soil level in the morning so plants dry fully before evening.' },
-      { title: 'Destroy debris', detail: 'Bag and dispose of all infected material — never compost it.' },
+      'Act immediately — late blight spreads fast',
+      'Apply systemic fungicide (chlorothalonil or mancozeb) every 5–7 days',
+      'Remove severely infected plants entirely to protect neighbors',
+      'Avoid overhead watering; water at soil level in the morning',
+      'Bag and destroy all infected material — never compost it',
     ],
   },
   'leaf mold': {
-    about: 'Leaf mold (Passalora fulva) causes pale green or yellow spots on the upper leaf surface, with olive-green to grayish-purple mold on the underside. It thrives in high-humidity greenhouse conditions.',
-    examples: [
-      { caption: 'Yellow upper spots' },
-      { caption: 'Mold underside' },
-      { caption: 'Yellowing spread' },
-    ],
+    about: 'Passalora fulva — causes pale green or yellow spots on the upper leaf surface with olive-green to grayish-purple mold underneath. Thrives in high-humidity greenhouse conditions.',
     treatment: [
-      { title: 'Reduce humidity', detail: 'Improve ventilation in greenhouses. Target below 85% relative humidity.' },
-      { title: 'Remove affected leaves', detail: 'Strip leaves showing yellow spots and dispose of them in sealed bags.' },
-      { title: 'Apply fungicide', detail: 'Copper-based or chlorothalonil fungicide applied every 7 days works well.' },
-      { title: 'Avoid leaf wetness', detail: 'Drip irrigation is preferable to overhead watering.' },
-      { title: 'Space plants adequately', detail: 'Crowded plants trap moisture — prune and space for better airflow.' },
+      'Reduce greenhouse humidity below 85%',
+      'Remove affected leaves and dispose in sealed bags',
+      'Apply copper-based or chlorothalonil fungicide every 7 days',
+      'Switch to drip irrigation to avoid leaf wetness',
+      'Prune and space plants for better airflow',
+    ],
+  },
+  'bacterial spot': {
+    about: 'Xanthomonas species — causes small, dark, water-soaked lesions on leaves that may develop yellow halos. Spreads through splashing water, contaminated tools, and infected seed.',
+    treatment: [
+      'Remove and destroy infected plant material',
+      'Apply copper-based bactericide as a preventive spray',
+      'Avoid working with plants when foliage is wet',
+      'Sanitize tools between plants to prevent spread',
+      'Use disease-free seed and resistant varieties when available',
+    ],
+  },
+  'septoria': {
+    about: 'Septoria lycopersici — fungal leaf spot disease producing small circular spots with dark borders and gray centers. Tiny black fruiting bodies may be visible with magnification.',
+    treatment: [
+      'Remove lower infected leaves to slow spread',
+      'Apply fungicide (chlorothalonil or copper-based) every 7–10 days',
+      'Mulch around plants to prevent soil splash',
+      'Avoid overhead watering; water at soil level',
+      'Rotate crops — do not plant tomatoes in the same spot annually',
+    ],
+  },
+  'spider mite': {
+    about: 'Tetranychus urticae — tiny arachnids that cause stippled, yellowing leaves with fine webbing on the underside. They thrive in hot, dry conditions and reproduce rapidly.',
+    treatment: [
+      'Spray plants with a strong stream of water to dislodge mites',
+      'Apply insecticidal soap or neem oil to both sides of leaves',
+      'Introduce predatory mites (Phytoseiulus persimilis) as biocontrol',
+      'Increase humidity around plants — mites prefer dry conditions',
+      'Remove heavily infested leaves and dispose of them',
+    ],
+  },
+  'target spot': {
+    about: 'Corynespora cassiicola — fungal disease causing brown lesions with concentric rings resembling a target. Can affect leaves, stems, and fruit in warm humid conditions.',
+    treatment: [
+      'Remove and destroy affected plant parts',
+      'Apply fungicide (chlorothalonil or mancozeb) preventively',
+      'Improve air circulation through pruning and spacing',
+      'Avoid overhead irrigation; water at soil level',
+      'Practice crop rotation with non-solanaceous crops',
+    ],
+  },
+  'curl virus': {
+    about: 'Tomato Yellow Leaf Curl Virus (TYLCV) — transmitted by whiteflies, causing severe leaf curling, yellowing, and stunted growth. Infected plants rarely recover and yield drops significantly.',
+    treatment: [
+      'Remove and destroy infected plants promptly',
+      'Control whitefly populations with insecticidal soap or neem oil',
+      'Use reflective mulch to deter whiteflies',
+      'Install fine mesh netting to exclude whitefly vectors',
+      'Plant resistant varieties when available',
+    ],
+  },
+  'mosaic virus': {
+    about: 'Tomato Mosaic Virus (ToMV) — causes mottled light and dark green patterns on leaves, leaf distortion, and reduced fruit quality. Highly contagious through mechanical contact.',
+    treatment: [
+      'Remove and destroy infected plants — do not compost',
+      'Sanitize all tools, stakes, and hands with 10% bleach solution',
+      'Avoid tobacco products near plants (cross-contamination risk)',
+      'Use virus-free seed and resistant cultivars',
+      'Control aphid vectors with insecticidal soap',
     ],
   },
   healthy: {
     about: 'Great news — your plant looks healthy! No signs of disease were detected in this leaf sample. Continue your current care routine and keep monitoring regularly.',
-    examples: [
-      { caption: 'Vibrant color' },
-      { caption: 'Clean leaf surface' },
-      { caption: 'Strong veins' },
-    ],
     treatment: [
-      { title: 'Maintain regular watering', detail: 'Keep a consistent watering schedule appropriate for your plant species.' },
-      { title: 'Fertilize seasonally', detail: 'Feed during growing season with a balanced fertilizer.' },
-      { title: 'Monitor monthly', detail: 'Scan a new leaf monthly to catch any early signs before they spread.' },
-      { title: 'Ensure good drainage', detail: 'Root rot from waterlogging is a common hidden threat to healthy-looking plants.' },
-      { title: 'Watch for pests', detail: 'Check the undersides of leaves periodically for aphids, spider mites, or whitefly.' },
+      'Maintain regular watering appropriate for your plant species',
+      'Fertilize seasonally with a balanced fertilizer',
+      'Monitor monthly — scan a new leaf to catch early signs',
+      'Ensure good drainage to prevent root rot',
+      'Check leaf undersides periodically for pests',
     ],
   },
 };
@@ -95,187 +151,253 @@ function getDiseaseInfo(label: string) {
   return DISEASE_INFO.default;
 }
 
-// SVG placeholder leaf illustrations for the example grid
-function ExampleLeafSVG({ variant }: { variant: 1 | 2 | 3 }) {
-  const fills = [
-    { bg: '#1e3018', leaf: '#3e6828', spot: '#7a2020', spot2: '#5a1010' },
-    { bg: '#182814', leaf: '#2a5020', spot: '#3a1808', spot2: '#6a2a10' },
-    { bg: '#1a2c16', leaf: '#284820', spot: '#2c1008', spot2: '#4a1a0c' },
-  ][variant - 1];
-
-  return (
-    <svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg" style={{ width: '100%', aspectRatio: '1', display: 'block' }}>
-      <rect width="80" height="80" fill={fills.bg}/>
-      <path d={variant === 1
-        ? "M40 12C40 12 56 24 56 44C56 58 50 68 40 68C30 68 24 58 24 44C24 24 40 12 40 12Z"
-        : variant === 2
-        ? "M14 40C14 40 22 26 40 26C58 26 66 40 66 40C66 40 58 54 40 54C22 54 14 40 14 40Z"
-        : "M40 10C40 10 58 24 58 44C58 60 51 70 40 70C29 70 22 60 22 44C22 24 40 10 40 10Z"}
-        fill={fills.leaf} opacity="0.8"/>
-      <circle cx={variant === 1 ? 44 : variant === 2 ? 36 : 40} cy={variant === 1 ? 38 : variant === 2 ? 36 : 44} r={variant === 1 ? 9 : 7} fill={fills.spot} opacity="0.7"/>
-      <circle cx={variant === 1 ? 44 : variant === 2 ? 36 : 40} cy={variant === 1 ? 38 : variant === 2 ? 36 : 44} r={variant === 1 ? 5 : 4} fill={fills.spot2} opacity="0.75"/>
-      {variant !== 1 && (
-        <circle cx={variant === 2 ? 50 : 48} cy={variant === 2 ? 44 : 54} r={5} fill={fills.spot} opacity="0.6"/>
-      )}
-    </svg>
-  );
+/* ── Component ── */
+interface Props {
+  result: PredictionResponse;
+  scanHistory?: { label: string; confidence: number; timestamp: Date; fileName: string }[];
 }
 
-export default function PredictionResult({ result }: { result: PredictionResponse }) {
-  const [activeTab, setActiveTab] = useState<'what' | 'treat'>('what');
+export default function PredictionResult({ result, scanHistory = [] }: Props) {
+  const [activeTab, setActiveTab] = useState<'result' | 'history'>('result');
   const info = getDiseaseInfo(result.label);
   const pct = (result.confidence * 100).toFixed(1);
   const isHealthy = result.label.toLowerCase().includes('healthy');
+  const displayLabel = formatLabel(result.label);
 
-  const tabStyle = (tab: 'what' | 'treat') => ({
-    flex: 1,
-    fontSize: 12,
-    fontWeight: 700 as const,
-    padding: '12px 8px',
+  const tabStyle = (tab: 'result' | 'history') => ({
+    fontSize: 14,
+    fontWeight: 600 as const,
+    padding: '12px 4px',
     cursor: 'pointer' as const,
-    color: activeTab === tab ? 'var(--green-dark)' : 'var(--text-faint)',
-    marginBottom: -1,
-    textAlign: 'center' as const,
+    color: activeTab === tab ? 'var(--text-primary)' : 'var(--text-faint)',
     background: 'none',
     border: 'none',
-    borderBottom: activeTab === tab ? `2px solid var(--green-dark)` : '2px solid transparent',
-    letterSpacing: '0.3px',
+    borderBottom: activeTab === tab ? '2px solid var(--text-primary)' : '2px solid transparent',
     fontFamily: "'Nunito', sans-serif",
+    marginRight: 20,
   });
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 14, animation: 'fadeUp 0.4s ease-out' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 0, animation: 'fadeUp 0.4s ease-out' }}>
 
-      {/* Disease name + confidence pill */}
-      <div style={{
-        background: 'var(--surface)',
-        borderRadius: 14,
-        border: '1px solid var(--border-strong)',
-        padding: '16px 18px',
-        display: 'flex',
-        alignItems: 'flex-start',
-        justifyContent: 'space-between',
-        gap: 10,
-      }}>
-        <div>
-          <h3 style={{ fontFamily: "'Lora', Georgia, serif", fontSize: 22, color: 'var(--text-primary)', fontWeight: 600, lineHeight: 1.2 }}>
-            {result.label}
-          </h3>
-          <p style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 4 }}>
-            Scanned just now
-          </p>
-        </div>
-        <span style={{
-          background: isHealthy ? '#e4f2d8' : parseFloat(pct) > 80 ? '#e4f2d8' : parseFloat(pct) > 60 ? '#fef3c7' : '#fee2e2',
-          color: isHealthy ? 'var(--green-pill-text)' : parseFloat(pct) > 80 ? 'var(--green-pill-text)' : parseFloat(pct) > 60 ? '#92400e' : '#991b1b',
-          fontSize: 12,
-          fontWeight: 700,
-          padding: '5px 12px',
-          borderRadius: 20,
-          whiteSpace: 'nowrap' as const,
-          flexShrink: 0,
-        }}>
-          {pct}% sure
-        </span>
+      {/* Tab bar */}
+      <div style={{ borderBottom: '1px solid var(--border)', marginBottom: 20 }}>
+        <button style={tabStyle('result')} onClick={() => setActiveTab('result')}>Result</button>
+        <button style={tabStyle('history')} onClick={() => setActiveTab('history')}>History</button>
       </div>
 
-      {/* Confidence bar */}
-      <div style={{
-        background: 'var(--surface)',
-        borderRadius: 12,
-        border: '1px solid var(--border-strong)',
-        padding: '14px 18px',
-      }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, fontWeight: 700, color: 'var(--conf-label)', marginBottom: 8, letterSpacing: '0.3px' }}>
-          <span>Confidence</span>
-          <span>{pct} / 100</span>
-        </div>
-        <div style={{ height: 7, background: 'var(--bar-bg)', borderRadius: 8, overflow: 'hidden' }}>
+      {activeTab === 'result' ? (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+
+          {/* Disease name + confidence pill */}
           <div style={{
-            height: '100%',
-            width: `${pct}%`,
-            background: parseFloat(pct) > 80 ? 'var(--green-mid)' : parseFloat(pct) > 60 ? '#d97706' : '#dc2626',
-            borderRadius: 8,
-            transition: 'width 1s ease-out',
-          }} />
-        </div>
-      </div>
+            display: 'flex',
+            alignItems: 'flex-start',
+            justifyContent: 'space-between',
+            gap: 12,
+          }}>
+            <h3 style={{
+              fontFamily: "'Lora', Georgia, serif",
+              fontSize: 26,
+              color: 'var(--text-primary)',
+              fontWeight: 600,
+              lineHeight: 1.25,
+              margin: 0,
+            }}>
+              {displayLabel}
+            </h3>
+            <span style={{
+              background: 'var(--surface)',
+              border: '1px solid var(--border-strong)',
+              color: 'var(--text-primary)',
+              fontSize: 13,
+              fontWeight: 700,
+              fontFamily: 'monospace',
+              padding: '4px 12px',
+              borderRadius: 6,
+              whiteSpace: 'nowrap' as const,
+              flexShrink: 0,
+            }}>
+              {pct}%
+            </span>
+          </div>
 
-      {/* Tabs card */}
-      <div style={{
-        background: 'var(--surface)',
-        borderRadius: 14,
-        border: '1px solid var(--border-strong)',
-        overflow: 'hidden',
-        flex: 1,
-      }}>
-        {/* Tab bar */}
-        <div style={{ display: 'flex', borderBottom: '1px solid var(--border)' }}>
-          <button style={tabStyle('what')} onClick={() => setActiveTab('what')}>What is it?</button>
-          <button style={tabStyle('treat')} onClick={() => setActiveTab('treat')}>How to treat</button>
-        </div>
+          {/* Confidence bar card */}
+          <div style={{
+            background: 'var(--surface)',
+            borderRadius: 14,
+            border: '1px solid var(--border-strong)',
+            padding: '16px 20px',
+          }}>
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'baseline',
+              marginBottom: 10,
+            }}>
+              <span style={{
+                fontSize: 13,
+                fontWeight: 600,
+                color: 'var(--conf-label)',
+                letterSpacing: '0.2px',
+              }}>
+                confidence
+              </span>
+              <span style={{
+                fontSize: 16,
+                fontWeight: 700,
+                color: 'var(--text-primary)',
+                fontFamily: 'monospace',
+              }}>
+                {pct} / 100
+              </span>
+            </div>
+            <div style={{
+              height: 8,
+              background: 'var(--bar-bg)',
+              borderRadius: 8,
+              overflow: 'hidden',
+            }}>
+              <div style={{
+                height: '100%',
+                width: `${pct}%`,
+                background: isHealthy
+                  ? 'var(--green-mid)'
+                  : parseFloat(pct) > 80 ? 'var(--green-mid)'
+                  : parseFloat(pct) > 60 ? '#d97706'
+                  : '#dc2626',
+                borderRadius: 8,
+                transition: 'width 1s ease-out',
+              }} />
+            </div>
+          </div>
 
-        {/* What is it pane */}
-        {activeTab === 'what' && (
-          <div style={{ padding: '18px', display: 'flex', flexDirection: 'column', gap: 16 }}>
-            <p style={{ fontSize: 13, color: 'var(--text-body)', lineHeight: 1.7 }}>
+          {/* About card */}
+          <div style={{
+            background: 'var(--surface)',
+            borderRadius: 14,
+            border: '1px solid var(--border-strong)',
+            padding: '18px 20px',
+          }}>
+            <span style={{
+              fontSize: 10,
+              fontWeight: 700,
+              letterSpacing: '1.4px',
+              color: 'var(--green-dark)',
+              textTransform: 'uppercase',
+              display: 'block',
+              marginBottom: 10,
+            }}>
+              About
+            </span>
+            <p style={{
+              fontSize: 14,
+              color: 'var(--text-body)',
+              lineHeight: 1.7,
+              margin: 0,
+            }}>
               {info.about}
             </p>
+          </div>
 
+          {/* Treatment card */}
+          <div style={{
+            background: 'var(--surface)',
+            borderRadius: 14,
+            border: '1px solid var(--border-strong)',
+            padding: '18px 20px',
+          }}>
             <span style={{
-              fontSize: 10, fontWeight: 700, letterSpacing: '1.2px',
-              color: 'var(--text-faint)', textTransform: 'uppercase',
+              fontSize: 10,
+              fontWeight: 700,
+              letterSpacing: '1.4px',
+              color: 'var(--green-dark)',
+              textTransform: 'uppercase',
+              display: 'block',
+              marginBottom: 14,
             }}>
-              What it looks like
+              Treatment
             </span>
-
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8 }}>
-              {([1, 2, 3] as const).map((v) => (
-                <div key={v} style={{
-                  borderRadius: 10,
-                  overflow: 'hidden',
-                  border: '1px solid var(--border-strong)',
-                }}>
-                  <ExampleLeafSVG variant={v} />
-                  <div style={{
-                    fontSize: 10,
-                    color: 'var(--text-muted)',
-                    padding: '5px 7px',
-                    fontWeight: 600,
-                    background: 'var(--background)',
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              {info.treatment.map((step, i) => (
+                <div key={i} style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
+                  <span style={{
+                    color: 'var(--green-dark)',
+                    fontSize: 16,
+                    lineHeight: '1.4',
+                    flexShrink: 0,
+                    fontWeight: 300,
                   }}>
-                    {info.examples[v - 1].caption}
-                  </div>
+                    —
+                  </span>
+                  <p style={{
+                    fontSize: 14,
+                    color: 'var(--text-body)',
+                    lineHeight: 1.6,
+                    margin: 0,
+                  }}>
+                    {step}
+                  </p>
                 </div>
               ))}
             </div>
           </div>
-        )}
-
-        {/* How to treat pane */}
-        {activeTab === 'treat' && (
-          <div style={{ padding: '18px', display: 'flex', flexDirection: 'column', gap: 12 }}>
-            {info.treatment.map((step, i) => (
-              <div key={i} style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
-                <div style={{
-                  width: 24, height: 24, minWidth: 24,
-                  background: 'var(--green-light)',
-                  borderRadius: '50%',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontSize: 11, fontWeight: 800, color: 'var(--green-dark)',
-                  marginTop: 1,
+        </div>
+      ) : (
+        /* History tab */
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          {scanHistory.length === 0 ? (
+            <div style={{
+              background: 'var(--surface)',
+              borderRadius: 14,
+              border: '1px solid var(--border-strong)',
+              padding: '40px 20px',
+              textAlign: 'center',
+            }}>
+              <p style={{ fontSize: 13, color: 'var(--text-faint)' }}>
+                Your scan history will appear here.
+              </p>
+            </div>
+          ) : (
+            scanHistory.map((scan, i) => {
+              const scanPct = (scan.confidence * 100).toFixed(1);
+              return (
+                <div key={i} style={{
+                  background: 'var(--surface)',
+                  borderRadius: 12,
+                  border: '1px solid var(--border-strong)',
+                  padding: '14px 18px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
                 }}>
-                  {i + 1}
+                  <div>
+                    <p style={{
+                      fontSize: 14,
+                      fontWeight: 600,
+                      color: 'var(--text-primary)',
+                      margin: 0,
+                    }}>
+                      {formatLabel(scan.label)}
+                    </p>
+                    <p style={{ fontSize: 11, color: 'var(--text-faint)', margin: '2px 0 0' }}>
+                      {scan.fileName} · {scan.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    </p>
+                  </div>
+                  <span style={{
+                    fontSize: 12,
+                    fontWeight: 700,
+                    fontFamily: 'monospace',
+                    color: 'var(--text-primary)',
+                  }}>
+                    {scanPct}%
+                  </span>
                 </div>
-                <div style={{ fontSize: 13, color: 'var(--text-body)', lineHeight: 1.6 }}>
-                  <strong style={{ color: 'var(--text-primary)', fontWeight: 700 }}>{step.title}. </strong>
-                  {step.detail}
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
+              );
+            })
+          )}
+        </div>
+      )}
 
       <style>{`
         @keyframes fadeUp {

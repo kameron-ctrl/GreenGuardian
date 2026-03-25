@@ -62,11 +62,22 @@ export default function DiagnosePage() {
               <path d="M11 18C11 16.5 11.5 15 12.5 13.5" stroke="#2a5a1a" strokeWidth="1.2" strokeLinecap="round"/>
             </svg>
           </div>
-          <span style={{ fontFamily: "'Lora', Georgia, serif", fontSize: 17, color: 'var(--text-primary)' }}>
+          <span style={{ fontFamily: "'Lora', Georgia, serif", fontSize: 17, color: 'var(--text-primary)', fontWeight: 600 }}>
             Green Guardian
           </span>
         </div>
-        <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>Your plant health companion</span>
+        <span style={{
+          fontSize: 11,
+          fontWeight: 600,
+          color: 'var(--green-dark)',
+          border: '1px solid var(--border-strong)',
+          borderRadius: 6,
+          padding: '5px 14px',
+          letterSpacing: '0.5px',
+          fontFamily: "'Nunito', sans-serif",
+        }}>
+          AI &mdash; Plant Diagnostics
+        </span>
       </nav>
 
       {/* Split body */}
@@ -92,7 +103,7 @@ export default function DiagnosePage() {
             fontSize: 10, fontWeight: 700, letterSpacing: '1.4px',
             color: 'var(--text-faint)', textTransform: 'uppercase',
           }}>
-            01 — Upload specimen
+            01 &mdash; Upload specimen
           </span>
 
           <DiagnoseForm onDiagnose={handleDiagnose} loading={loading} />
@@ -123,7 +134,7 @@ export default function DiagnosePage() {
             fontSize: 10, fontWeight: 700, letterSpacing: '1.4px',
             color: 'var(--text-faint)', textTransform: 'uppercase',
           }}>
-            02 — Diagnosis
+            02 &mdash; Diagnosis
           </span>
 
           {error && (
@@ -168,7 +179,12 @@ export default function DiagnosePage() {
             </div>
           )}
 
-          {result && <PredictionResult result={result} />}
+          {result && <PredictionResult result={result} scanHistory={scans.map(s => ({
+            label: s.label,
+            confidence: s.confidence,
+            timestamp: s.timestamp,
+            fileName: s.fileName,
+          }))} />}
         </div>
 
       </div>

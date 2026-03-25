@@ -1,6 +1,8 @@
-// recent scans heeee
+// recent scans
 
 'use client';
+
+import { formatLabel } from './PredictionResult';
 
 export interface ScanRecord {
   id: string;
@@ -111,7 +113,7 @@ export default function RecentScans({ scans, onClear }: Props) {
                   fontSize: 13, fontWeight: 600, color: 'var(--text-primary)',
                   overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
                 }}>
-                  {scan.label}
+                  {formatLabel(scan.label)}
                 </p>
                 <p style={{ fontSize: 11, color: 'var(--text-faint)', marginTop: 1 }}>
                   {formatTime(scan.timestamp)}
