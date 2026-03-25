@@ -50,18 +50,13 @@ export default function DiagnosePage() {
         flexShrink: 0,
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <div style={{
-            width: 32, height: 32,
-            background: 'var(--green-light)',
-            borderRadius: '50%',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-          }}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-              <path d="M12 21C8 21 4 17 4 12C4 8 7 4 12 4C17 4 20 8 20 12C20 17 16 21 12 21Z" fill="#c0e0a0"/>
-              <path d="M9 15C10.5 12 13 9 17 8C17 12 15 16 11 18L9 15Z" fill="#3a7a28"/>
-              <path d="M11 18C11 16.5 11.5 15 12.5 13.5" stroke="#2a5a1a" strokeWidth="1.2" strokeLinecap="round"/>
-            </svg>
-          </div>
+          <img
+            src="/logo-icon.png"
+            alt="Green Guardian"
+            width={32}
+            height={32}
+            style={{ objectFit: 'contain' }}
+          />
           <span style={{ fontFamily: "'Lora', Georgia, serif", fontSize: 17, color: 'var(--text-primary)', fontWeight: 600 }}>
             Green Guardian
           </span>
