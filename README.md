@@ -1,75 +1,161 @@
-# Green Guardian
-Green Guardian is a full-stack, AI-powered mobile and web application that detects disease from pictures of plant leaves. The model identifies over
-30 different disease classes and return fast, real-time predictions with confidence levels included. 
+<p align="center">
+  <img src="web/public/logo-icon.png" alt="Green Guardian" width="80" />
+</p>
 
-- Mobile image capture using Expo React Native
-- FastAPI backend that uses PyTorch modeling
-- Using ML, which creates custom data splitting, training, and testing
-- Supports .jpg, .jpeg, .png and .heic files
-- Designed for local hosting (for now)
+<h1 align="center">Green Guardian</h1>
 
-## Tech Stack 
-|  Layer 	|  Technology 	|
-|:-:	|---	|
-|  Front end 	|   Expo + ReactNative (future mobile use)	|
-|  Backend 	|   FastAPI + Uvicorn	|
-|  Machine Learning 	|  Pytorch 	|
-|  Database 	|   [PlantVillage](https://www.kaggle.com/datasets/emmarex/plantdisease)	|
-|  Devtools	|  Python, Typescript, CORS, Axios, PIL 	|
-|  Dev Ops | Docker, Amazon Web Services AWS|
+<p align="center">
+  AI-powered plant disease detection from leaf photos.
+  <br />
+  Upload an image, get an instant diagnosis with confidence scoring and treatment advice.
+  <br /><br />
+  <a href="https://d25t8i75m01j.cloudfront.net/"><strong>Live Site →</strong></a>
+</p>
 
-## WEBSITE URL
-[Green Guardian 
-](https://d25t8i75m01j.cloudfront.net/)
-# If you want to run locally, follow these steps!
+<p align="center">
+  <img src="https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white" alt="Next.js" />
+  <img src="https://img.shields.io/badge/React-61DAFB?style=for-the-badge&logo=react&logoColor=black" alt="React" />
+  <img src="https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript" />
+  <img src="https://img.shields.io/badge/Tailwind_CSS-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white" alt="Tailwind CSS" />
+  <img src="https://img.shields.io/badge/FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white" alt="FastAPI" />
+  <img src="https://img.shields.io/badge/PyTorch-EE4C2C?style=for-the-badge&logo=pytorch&logoColor=white" alt="PyTorch" />
+  <img src="https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="Python" />
+  <img src="https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white" alt="Docker" />
+  <img src="https://img.shields.io/badge/AWS_Lambda-FF9900?style=for-the-badge&logo=awslambda&logoColor=white" alt="AWS Lambda" />
+  <img src="https://img.shields.io/badge/Amazon_S3-569A31?style=for-the-badge&logo=amazons3&logoColor=white" alt="Amazon S3" />
+  <img src="https://img.shields.io/badge/CloudFront-8C4FFF?style=for-the-badge&logo=amazonaws&logoColor=white" alt="CloudFront" />
+  <img src="https://img.shields.io/badge/GitHub_Actions-2088FF?style=for-the-badge&logo=githubactions&logoColor=white" alt="GitHub Actions" />
+</p>
 
-## Set Up Backend!
-1. Clone the repo 
-```python
-git clone https://github.com/kameron-ctrl/GreenGuardian
-cd GreenGuardian
+---
+
+<p align="center">
+  <img src="web/public/screenshot.png" alt="Green Guardian — Plant Disease Diagnosis" width="100%" style="border-radius: 8px;" />
+</p>
+
+## About
+
+Green Guardian is a full-stack web application that uses a custom-trained PyTorch model to identify plant diseases from leaf photographs. The model was trained on the [PlantVillage](https://www.kaggle.com/datasets/emmarex/plantdisease) dataset and classifies 15 conditions across three plant types — tomato, potato, and bell pepper — returning real-time predictions with confidence levels.
+
+### What It Does
+
+- Upload a `.jpg`, `.jpeg`, or `.png` leaf photo and receive an instant diagnosis
+- View confidence scores, disease descriptions, and step-by-step treatment recommendations
+- Track recent scans in-session with a scan history panel
+- Responsive two-panel layout with a clean, minimal UI
+
+## Tech Stack
+
+| Layer | Technology |
+|-------|------------|
+| Frontend | Next.js 15, React 19, TypeScript, Tailwind CSS 4 |
+| Backend | FastAPI, Mangum (AWS Lambda adapter) |
+| ML Model | PyTorch, TorchVision (ResNet-based classifier) |
+| Dataset | [PlantVillage](https://www.kaggle.com/datasets/emmarex/plantdisease) — 15 classes |
+| Infrastructure | AWS Lambda, ECR, S3, CloudFront |
+| CI/CD | GitHub Actions (auto-deploy on push to `main`) |
+
+## Architecture
+
 ```
-2. Install the backend dependencies
-```python
-cd backend
+User → CloudFront → S3 (static Next.js export)
+                        ↓
+              Upload image via /predict
+                        ↓
+              API Gateway → Lambda (Docker)
+                        ↓
+              FastAPI → PyTorch model → response
+```
+
+The frontend is a statically exported Next.js app hosted on S3 behind CloudFront. The backend runs as a Dockerized FastAPI app on AWS Lambda, with the PyTorch model bundled in the container image via ECR.
+
+## Supported Classifications
+
+| Plant | Conditions |
+|-------|------------|
+| Tomato | Bacterial Spot, Early Blight, Late Blight, Leaf Mold, Septoria Leaf Spot, Spider Mites, Target Spot, Yellow Leaf Curl Virus, Mosaic Virus, Healthy |
+| Potato | Early Blight, Late Blight, Healthy |
+| Bell Pepper | Bacterial Spot, Healthy |
+
+## Run Locally
+
+### Prerequisites
+
+- Python 3.9+
+- Node.js 20+
+- `model.pt` in `backend/model/` (train with `python train.py` or provide your own)
+
+### Backend
+
+```bash
+git clone https://github.com/kameron-ctrl/GreenGuardian
+cd GreenGuardian/backend
+
 python -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
-```
-3. Train or download model
-Train using:
-```python
-python train.py
-```
-<p>or place ```model.pt``` into ```backend/model/``` <p>
-4. Run the backend 
 
-```python
-uvicorn backend.main:app --host 0.0.0.0 --port 8000
-
+uvicorn main:app --host 0.0.0.0 --port 8000
 ```
 
-## Set up Frontend!
-1. Navigate to frontend folder
+The API will be available at `http://localhost:8000`. Test with `GET /` for a health check or `POST /predict` with a multipart file upload.
 
-```python
-cd frontend
+### Web App
+
+```bash
+cd web
 npm install
+npm run dev
 ```
-2. Start Expo Server
 
-```python
-npx expo start
+Open `http://localhost:3000`. By default the app points to the production API. To use your local backend, create a `.env.local` file in the `web/` directory:
+
 ```
-3. Setup your backend IP
-in ```index.tsx``` replace:
-```python
-const apiUrl = 'http://YOUR-IP:8000/predict';
+NEXT_PUBLIC_API_URL=http://localhost:8000
 ```
-With your actual IP addresss
 
+## Deployment
 
-# Works in progress!
-- Advice based on prediction
-- Image history and Prediction logging
-- Better trained data
+Deployment is fully automated via GitHub Actions. Pushing to `main` triggers the workflow in `.github/workflows/deploy.yml`, which:
+
+1. **Detects changes** — only rebuilds what changed (`web/` or `backend/`)
+2. **Backend** — builds a Docker image, pushes to ECR, and updates the Lambda function
+3. **Frontend** — runs `next build`, syncs the static export to S3, and invalidates the CloudFront cache
+
+Required GitHub Secrets: `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_REGION`, `ECR_REPOSITORY`, `LAMBDA_FUNCTION_NAME`, `S3_BUCKET_NAME`, `CLOUDFRONT_DISTRIBUTION_ID`
+
+## Project Structure
+
+```
+GreenGuardian/
+├── backend/
+│   ├── main.py              # FastAPI app with /predict endpoint
+│   ├── lambdahandler.py     # Mangum adapter for AWS Lambda
+│   ├── model/
+│   │   ├── predictor.py     # PyTorch inference logic
+│   │   ├── labels.json      # Class label mapping
+│   │   └── model.pt         # Trained model weights
+│   ├── train.py             # Model training script
+│   ├── splitdataset.py      # Dataset splitting utility
+│   ├── Dockerfile.lambda    # Lambda container definition
+│   └── requirements.txt
+├── web/
+│   ├── src/
+│   │   ├── app/
+│   │   │   ├── page.tsx     # Main diagnostic page
+│   │   │   ├── layout.tsx   # Root layout + metadata
+│   │   │   └── globals.css  # Design tokens + typography
+│   │   ├── components/
+│   │   │   ├── DiagnoseForm.tsx      # Upload + image preview
+│   │   │   ├── PredictionResult.tsx  # Diagnosis display + treatment
+│   │   │   └── RecentScans.tsx       # Scan history sidebar
+│   │   ├── lib/api.ts       # API client
+│   │   └── types/prediction.ts
+│   └── public/               # Static assets (logo, favicon, backgrounds)
+└── .github/workflows/
+    └── deploy.yml            # CI/CD pipeline
+```
+
+## License
+
+[MIT](LICENSE)
