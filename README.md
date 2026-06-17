@@ -9,7 +9,7 @@
   <br />
   Upload an image, get an instant diagnosis with confidence scoring and treatment advice.
   <br /><br />
-  <a href="https://d25t8i75m01j.cloudfront.net/"><strong>Live Site →</strong></a>
+  <a href="https://d25t8i75m01j.cloudfront.net/"><strong>Live Site → (currently down) </strong></a>
 </p>
 
 <p align="center">
