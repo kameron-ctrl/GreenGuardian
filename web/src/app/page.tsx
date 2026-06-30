@@ -57,32 +57,14 @@ export default function DiagnosePage() {
             height={32}
             style={{ objectFit: 'contain' }}
           />
-          <span style={{ fontFamily: "'Lora', Georgia, serif", fontSize: 17, color: 'var(--text-primary)', fontWeight: 600 }}>
+          <span style={{ fontFamily: "'Faustina', Georgia, serif", fontSize: 17, color: 'var(--text-primary)', fontWeight: 600 }}>
             Green Guardian
           </span>
         </div>
-        <span style={{
-          fontSize: 11,
-          fontWeight: 600,
-          color: 'var(--green-dark)',
-          border: '1px solid var(--border-strong)',
-          borderRadius: 6,
-          padding: '5px 14px',
-          letterSpacing: '0.5px',
-          fontFamily: "'Nunito', sans-serif",
-        }}>
-          AI &mdash; Plant Diagnostics
-        </span>
       </nav>
 
       {/* Split body */}
-      <div style={{
-        flex: 1,
-        display: 'grid',
-        gridTemplateColumns: '1fr 1fr',
-        minHeight: 0,
-        overflow: 'hidden',
-      }}>
+      <div className="main-grid">
 
         {/* Left panel */}
         <div style={{
@@ -98,20 +80,13 @@ export default function DiagnosePage() {
             fontSize: 10, fontWeight: 700, letterSpacing: '1.4px',
             color: 'var(--text-faint)', textTransform: 'uppercase',
           }}>
-            01 &mdash; Upload specimen
+            01 &mdash; Upload your leaf
           </span>
 
           <DiagnoseForm onDiagnose={handleDiagnose} loading={loading} />
 
           {/* Recent scans divider */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <div style={{ flex: 1, height: 1, background: 'var(--border)' }} />
-            <span style={{
-              fontSize: 10, fontWeight: 700, letterSpacing: '1.2px',
-              color: 'var(--text-faint)', textTransform: 'uppercase',
-            }}>Recent scans</span>
-            <div style={{ flex: 1, height: 1, background: 'var(--border)' }} />
-          </div>
+          <div style={{ height: 1, background: 'var(--border)' }} />
 
           <RecentScans scans={scans} onClear={() => setScans([])} />
         </div>
@@ -133,15 +108,18 @@ export default function DiagnosePage() {
           </span>
 
           {error && (
-            <div style={{
-              background: '#fff5f5',
-              border: '1px solid #fecaca',
-              borderRadius: 12,
-              padding: '14px 18px',
-              fontSize: 13,
-              color: '#b91c1c',
-              fontWeight: 600,
-            }}>
+            <div
+              role="alert"
+              style={{
+                background: 'var(--error-bg)',
+                border: '1px solid var(--error-border)',
+                borderRadius: 12,
+                padding: '14px 18px',
+                fontSize: 13,
+                color: 'var(--error-text)',
+                fontWeight: 600,
+              }}
+            >
               {error}
             </div>
           )}
@@ -169,7 +147,7 @@ export default function DiagnosePage() {
                 </svg>
               </div>
               <p style={{ fontSize: 13, color: 'var(--text-body)', lineHeight: 1.6 }}>
-                Upload a leaf photo and hit<br /><strong>Analyze specimen</strong> to see your diagnosis here.
+                Upload a leaf photo and tap <strong>Analyze</strong><br />to see what&rsquo;s going on.
               </p>
             </div>
           )}

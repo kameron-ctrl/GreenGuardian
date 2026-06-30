@@ -51,7 +51,7 @@ export default function DiagnoseForm({ onDiagnose, loading }: Props) {
           borderRadius: 14,
           overflow: 'hidden',
           position: 'relative',
-          background: '#1a2818',
+          background: 'var(--preview-bg)',
           border: '1px solid var(--border-strong)',
         }}>
           {/* Scan line animation */}
@@ -81,18 +81,20 @@ export default function DiagnoseForm({ onDiagnose, loading }: Props) {
             alignItems: 'flex-end',
             justifyContent: 'space-between',
           }}>
-            <span style={{ fontSize: 11, fontWeight: 600, color: '#9fca8f', fontFamily: 'monospace' }}>
+            <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--preview-filename)', fontFamily: 'monospace' }}>
               {file?.name}
             </span>
             <button
               onClick={handleReset}
+              aria-label="Remove selected image"
               style={{
                 background: 'rgba(200,50,50,0.8)',
                 border: 'none',
                 borderRadius: '50%',
-                width: 28, height: 28,
+                width: 44, height: 44,
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 cursor: 'pointer', color: '#fff',
+                flexShrink: 0,
               }}
             >
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
@@ -104,6 +106,7 @@ export default function DiagnoseForm({ onDiagnose, loading }: Props) {
       ) : (
         <label
           htmlFor="file-upload"
+          aria-label="Upload leaf image. Click or drag and drop a photo here."
           onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
           onDragLeave={() => setDragOver(false)}
           onDrop={handleDrop}
@@ -125,7 +128,7 @@ export default function DiagnoseForm({ onDiagnose, loading }: Props) {
         >
           <div style={{
             width: 56, height: 56,
-            background: '#eef7e6',
+            background: 'var(--upload-icon-bg)',
             borderRadius: '50%',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
           }}>
@@ -171,13 +174,14 @@ export default function DiagnoseForm({ onDiagnose, loading }: Props) {
       <button
         onClick={handleSubmit}
         disabled={!file || loading}
+        aria-busy={loading}
+        aria-disabled={!file || loading}
         style={{
           width: '100%',
           padding: 13,
           borderRadius: 12,
-          background: file && !loading ? 'var(--green-dark)' : '#b0c8a0',
+          background: file && !loading ? 'var(--green-dark)' : 'var(--btn-disabled)',
           border: 'none',
-          fontFamily: "'Nunito', sans-serif",
           fontSize: 14,
           fontWeight: 700,
           color: '#fff',
@@ -199,7 +203,7 @@ export default function DiagnoseForm({ onDiagnose, loading }: Props) {
           </>
         ) : (
           <>
-            Analyze specimen
+            Analyze photo
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
               <path d="M5 12h14M12 5l7 7-7 7"/>
             </svg>

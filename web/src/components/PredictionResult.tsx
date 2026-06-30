@@ -173,7 +173,6 @@ export default function PredictionResult({ result, scanHistory = [] }: Props) {
     background: 'none',
     border: 'none',
     borderBottom: activeTab === tab ? '2px solid var(--text-primary)' : '2px solid transparent',
-    fontFamily: "'Nunito', sans-serif",
     marginRight: 20,
   });
 
@@ -181,23 +180,59 @@ export default function PredictionResult({ result, scanHistory = [] }: Props) {
     <div style={{ display: 'flex', flexDirection: 'column', gap: 0, animation: 'fadeUp 0.4s ease-out' }}>
 
       {/* Tab bar */}
-      <div style={{ borderBottom: '1px solid var(--border)', marginBottom: 20 }}>
-        <button style={tabStyle('result')} onClick={() => setActiveTab('result')}>Result</button>
-        <button style={tabStyle('history')} onClick={() => setActiveTab('history')}>History</button>
+      <div role="tablist" aria-label="Diagnosis tabs" style={{ borderBottom: '1px solid var(--border)', marginBottom: 20 }}>
+        <button
+          role="tab"
+          aria-selected={activeTab === 'result'}
+          style={tabStyle('result')}
+          onClick={() => setActiveTab('result')}
+        >
+          Result
+        </button>
+        <button
+          role="tab"
+          aria-selected={activeTab === 'history'}
+          style={tabStyle('history')}
+          onClick={() => setActiveTab('history')}
+        >
+          History
+        </button>
       </div>
 
       {activeTab === 'result' ? (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
 
-          {/* Disease name + confidence pill */}
+          {/* Diagnosis header zone — health status drives color */}
           <div style={{
-            display: 'flex',
-            alignItems: 'flex-start',
-            justifyContent: 'space-between',
-            gap: 12,
+            borderRadius: 16,
+            padding: '20px 22px',
+            background: isHealthy ? 'var(--green-light)' : 'var(--disease-header-bg)',
+            border: `1.5px solid ${isHealthy ? 'var(--border-strong)' : 'var(--disease-header-border)'}`,
           }}>
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              marginBottom: 10,
+            }}>
+              <span style={{
+                fontSize: 11,
+                fontWeight: 700,
+                letterSpacing: '0.5px',
+                padding: '4px 12px',
+                borderRadius: 20,
+                background: isHealthy ? 'var(--green-dark)' : '#92400e',
+                color: '#fff',
+                textTransform: 'uppercase' as const,
+              }}>
+                {isHealthy ? 'Healthy' : 'Disease detected'}
+              </span>
+              <span style={{ fontSize: 12, color: 'var(--text-muted)', fontWeight: 500 }}>
+                {pct}% confidence
+              </span>
+            </div>
             <h3 style={{
-              fontFamily: "'Lora', Georgia, serif",
+              fontFamily: "'Faustina', Georgia, serif",
               fontSize: 26,
               color: 'var(--text-primary)',
               fontWeight: 600,
@@ -206,68 +241,46 @@ export default function PredictionResult({ result, scanHistory = [] }: Props) {
             }}>
               {displayLabel}
             </h3>
-            <span style={{
-              background: 'var(--surface)',
-              border: '1px solid var(--border-strong)',
-              color: 'var(--text-primary)',
-              fontSize: 13,
-              fontWeight: 700,
-              fontFamily: 'monospace',
-              padding: '4px 12px',
-              borderRadius: 6,
-              whiteSpace: 'nowrap' as const,
-              flexShrink: 0,
-            }}>
-              {pct}%
-            </span>
           </div>
 
-          {/* Confidence bar card */}
-          <div style={{
-            background: 'var(--surface)',
-            borderRadius: 14,
-            border: '1px solid var(--border-strong)',
-            padding: '16px 20px',
-          }}>
+          {/* Confidence row — inline, not a card */}
+          <div style={{ padding: '0 4px' }}>
             <div style={{
               display: 'flex',
               justifyContent: 'space-between',
-              alignItems: 'baseline',
-              marginBottom: 10,
+              alignItems: 'center',
+              marginBottom: 8,
             }}>
-              <span style={{
-                fontSize: 13,
-                fontWeight: 600,
-                color: 'var(--conf-label)',
-                letterSpacing: '0.2px',
-              }}>
-                confidence
+              <span style={{ fontSize: 12, color: 'var(--text-muted)', fontWeight: 500 }}>
+                AI confidence
               </span>
               <span style={{
-                fontSize: 16,
+                fontSize: 11,
                 fontWeight: 700,
-                color: 'var(--text-primary)',
-                fontFamily: 'monospace',
+                padding: '2px 8px',
+                borderRadius: 4,
+                background: 'var(--bar-bg)',
+                color: 'var(--text-body)',
               }}>
-                {pct} / 100
+                {parseFloat(pct) > 80 ? 'High' : parseFloat(pct) > 60 ? 'Medium' : 'Low'}
               </span>
             </div>
-            <div style={{
-              height: 8,
-              background: 'var(--bar-bg)',
-              borderRadius: 8,
-              overflow: 'hidden',
-            }}>
+            <div
+              role="meter"
+              aria-valuenow={parseFloat(pct)}
+              aria-valuemin={0}
+              aria-valuemax={100}
+              aria-label={`Confidence: ${pct}%`}
+              style={{ height: 6, background: 'var(--bar-bg)', borderRadius: 8, overflow: 'hidden' }}
+            >
               <div style={{
                 height: '100%',
-                width: `${pct}%`,
-                background: isHealthy
-                  ? 'var(--green-mid)'
-                  : parseFloat(pct) > 80 ? 'var(--green-mid)'
-                  : parseFloat(pct) > 60 ? '#d97706'
-                  : '#dc2626',
+                width: '100%',
+                transform: `scaleX(${parseFloat(pct) / 100})`,
+                transformOrigin: 'left',
+                background: isHealthy ? 'var(--green-mid)' : 'var(--disease-bar)',
                 borderRadius: 8,
-                transition: 'width 1s ease-out',
+                transition: 'transform 1s ease-out',
               }} />
             </div>
           </div>
@@ -277,65 +290,58 @@ export default function PredictionResult({ result, scanHistory = [] }: Props) {
             background: 'var(--surface)',
             borderRadius: 14,
             border: '1px solid var(--border-strong)',
-            padding: '18px 20px',
+            padding: '20px 22px',
           }}>
-            <span style={{
-              fontSize: 10,
-              fontWeight: 700,
-              letterSpacing: '1.4px',
-              color: 'var(--green-dark)',
-              textTransform: 'uppercase',
-              display: 'block',
-              marginBottom: 10,
-            }}>
-              About
-            </span>
             <p style={{
-              fontSize: 14,
-              color: 'var(--text-body)',
-              lineHeight: 1.7,
-              margin: 0,
+              fontSize: 11,
+              fontWeight: 700,
+              letterSpacing: '0.4px',
+              color: 'var(--green-dark)',
+              margin: '0 0 10px',
             }}>
+              About this condition
+            </p>
+            <p style={{ fontSize: 14, color: 'var(--text-body)', lineHeight: 1.7, margin: 0 }}>
               {info.about}
             </p>
           </div>
 
-          {/* Treatment card */}
+          {/* Treatment card — visually distinct from About */}
           <div style={{
-            background: 'var(--surface)',
+            background: 'var(--surface-subtle)',
             borderRadius: 14,
-            border: '1px solid var(--border-strong)',
-            padding: '18px 20px',
+            border: '1px solid var(--border)',
+            padding: '20px 22px',
           }}>
-            <span style={{
-              fontSize: 10,
+            <p style={{
+              fontSize: 11,
               fontWeight: 700,
-              letterSpacing: '1.4px',
+              letterSpacing: '0.4px',
               color: 'var(--green-dark)',
-              textTransform: 'uppercase',
-              display: 'block',
-              marginBottom: 14,
+              margin: '0 0 14px',
             }}>
-              Treatment
-            </span>
+              What to do
+            </p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
               {info.treatment.map((step, i) => (
-                <div key={i} style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
+                <div key={i} style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
                   <span style={{
-                    color: 'var(--green-dark)',
-                    fontSize: 16,
-                    lineHeight: '1.4',
+                    width: 20,
+                    height: 20,
+                    borderRadius: '50%',
+                    background: 'var(--green-dark)',
+                    color: '#fff',
+                    fontSize: 10,
+                    fontWeight: 700,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
                     flexShrink: 0,
-                    fontWeight: 300,
+                    marginTop: 2,
                   }}>
-                    —
+                    {i + 1}
                   </span>
-                  <p style={{
-                    fontSize: 14,
-                    color: 'var(--text-body)',
-                    lineHeight: 1.6,
-                    margin: 0,
-                  }}>
+                  <p style={{ fontSize: 14, color: 'var(--text-body)', lineHeight: 1.6, margin: 0 }}>
                     {step}
                   </p>
                 </div>

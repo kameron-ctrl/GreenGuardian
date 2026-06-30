@@ -76,7 +76,7 @@ export default function RecentScans({ scans, onClear }: Props) {
         padding: '12px 18px',
         borderBottom: '1px solid var(--border)',
       }}>
-        <span style={{ fontFamily: "'Lora', Georgia, serif", fontSize: 14, color: 'var(--text-primary)' }}>
+        <span style={{ fontFamily: "'Faustina', Georgia, serif", fontSize: 14, color: 'var(--text-primary)' }}>
           Recent scans
         </span>
         <button
@@ -121,7 +121,7 @@ export default function RecentScans({ scans, onClear }: Props) {
               </div>
               <span style={{
                 fontSize: 11, fontWeight: 700,
-                color: isHealthy ? '#5a9e38' : parseFloat(pct) > 80 ? '#5a9e38' : parseFloat(pct) > 60 ? '#d97706' : '#dc2626',
+                color: isHealthy ? 'var(--scan-green)' : 'var(--disease-bar)',
                 flexShrink: 0,
               }}>
                 {pct}%

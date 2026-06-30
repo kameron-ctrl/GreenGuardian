@@ -14,7 +14,10 @@ export async function getPrediction(file: File): Promise<PredictionResponse> {
   });
 
   if (!res.ok) {
-    throw new Error('Prediction failed');
+    const body = await res.text().catch(() => '');
+    throw new Error(
+      `Prediction failed (${res.status} ${res.statusText})${body ? `: ${body}` : ''}`,
+    );
   }
 
   return res.json();
