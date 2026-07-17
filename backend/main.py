@@ -27,23 +27,57 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Reject uploads larger than this before buffering them into memory (default 10 MB).
-MAX_UPLOAD_BYTES = int(os.environ.get("MAX_UPLOAD_BYTES", 10 * 1024 * 1024))
+def _get_int_env(name: str, default: int, minimum: int = 1) -> int:
+    """Parse an int env var, clamping to a minimum; fall back on bad input."""
+    raw = os.environ.get(name)
+    if raw is None or raw.strip() == "":
+        return default
+    try:
+        return max(minimum, int(raw))
+    except ValueError:
+        logger.warning("Invalid %s=%r; using default %d", name, raw, default)
+        return default
+
+
+# Reject uploads larger than this (default 10 MB).
+MAX_UPLOAD_BYTES = _get_int_env("MAX_UPLOAD_BYTES", 10 * 1024 * 1024)
 
 # Best-effort per-IP rate limiting. NOTE: Lambda memory is per-container, so this
 # only throttles within a single warm container. Real enforcement belongs at the
 # API Gateway level (throttling / usage plan) — see SECURITY.md.
-RATE_LIMIT_MAX = int(os.environ.get("RATE_LIMIT_MAX", 30))
-RATE_LIMIT_WINDOW_SECONDS = int(os.environ.get("RATE_LIMIT_WINDOW_SECONDS", 60))
+RATE_LIMIT_MAX = _get_int_env("RATE_LIMIT_MAX", 30)
+RATE_LIMIT_WINDOW_SECONDS = _get_int_env("RATE_LIMIT_WINDOW_SECONDS", 60)
+# Hard cap on tracked IPs so untrusted/high-cardinality traffic can't grow the
+# map without bound inside a warm container.
+MAX_TRACKED_IPS = _get_int_env("MAX_TRACKED_IPS", 1000)
 _request_log: dict[str, list[float]] = {}
 
 
 def _client_ip(request: Request) -> str:
-    """Best-effort client IP, honoring API Gateway's X-Forwarded-For."""
+    """Best-effort client IP.
+
+    Honors API Gateway's X-Forwarded-For (first hop = original client). That
+    value is client-influenceable, so it is only used for best-effort
+    throttling; the MAX_TRACKED_IPS cap bounds memory regardless of spoofing.
+    """
     forwarded = request.headers.get("x-forwarded-for", "")
     if forwarded:
         return forwarded.split(",")[0].strip()
     return request.client.host if request.client else "unknown"
+
+
+def _prune_request_log(now: float) -> None:
+    """Drop expired/empty IP entries and enforce the MAX_TRACKED_IPS cap."""
+    window_start = now - RATE_LIMIT_WINDOW_SECONDS
+    stale = [ip for ip, hits in _request_log.items() if not hits or hits[-1] <= window_start]
+    for ip in stale:
+        del _request_log[ip]
+    overflow = len(_request_log) - MAX_TRACKED_IPS
+    if overflow > 0:
+        # Evict the least-recently-active IPs first.
+        oldest = sorted(_request_log.items(), key=lambda kv: kv[1][-1])[:overflow]
+        for ip, _ in oldest:
+            del _request_log[ip]
 
 
 def _is_rate_limited(ip: str) -> bool:
@@ -56,6 +90,7 @@ def _is_rate_limited(ip: str) -> bool:
         return True
     recent.append(now)
     _request_log[ip] = recent
+    _prune_request_log(now)
     return False
 
 
@@ -84,7 +119,7 @@ async def predict(request: Request):
                 detail="Too many requests. Please wait a moment and try again.",
             )
 
-        # Reject oversized uploads before reading them into memory.
+        # Fast reject when the client declares an oversized body.
         content_length = request.headers.get("content-length")
         if content_length is not None:
             try:
@@ -93,11 +128,19 @@ async def predict(request: Request):
             except ValueError:
                 raise HTTPException(status_code=400, detail="Invalid Content-Length header.")
 
-        body = await request.body()
-
-        # Guard against a missing/spoofed Content-Length by checking the real size.
-        if len(body) > MAX_UPLOAD_BYTES:
-            raise HTTPException(status_code=413, detail="Image too large.")
+        # Stream the body and abort as soon as it exceeds the cap, so a missing or
+        # spoofed Content-Length cannot force us to accumulate an unbounded payload.
+        # NOTE: under API Gateway + Lambda the platform buffers the full request
+        # before this code runs, so also cap the payload at the gateway — see
+        # SECURITY.md.
+        chunks: list[bytes] = []
+        received = 0
+        async for chunk in request.stream():
+            received += len(chunk)
+            if received > MAX_UPLOAD_BYTES:
+                raise HTTPException(status_code=413, detail="Image too large.")
+            chunks.append(chunk)
+        body = b"".join(chunks)
 
         print(f"Raw body length: {len(body)} bytes")
         print(f"Content-Type: {request.headers.get('content-type')}")

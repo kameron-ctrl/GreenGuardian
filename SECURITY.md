@@ -38,8 +38,12 @@ Because this repository is public, treat everything in it as world-readable:
   credentials. Set `ALLOWED_ORIGINS` (comma-separated) in the Lambda environment
   to your real frontend origin(s), e.g. `https://your-domain.com`. Credentials
   are disabled (the API uses no cookies/sessions).
-- **Upload size cap** — requests larger than `MAX_UPLOAD_BYTES` (default 10 MB)
-  are rejected before the body is buffered into memory.
+- **Upload size cap** — the app streams the request body and aborts with 413 as
+  soon as it exceeds `MAX_UPLOAD_BYTES` (default 10 MB), and fast-rejects an
+  oversized declared `Content-Length`. Note: under API Gateway + Lambda the
+  platform buffers the full request before the app runs, so also cap the payload
+  at the gateway (API Gateway REST has a 10 MB hard limit; set a lower quota if
+  desired).
 - **Error responses** — internal exceptions are logged server-side (CloudWatch)
   and a generic message is returned to the caller; no stack traces / paths leak.
 - **Model loading** — the model is stored as a state_dict (`model_state.pt`) and

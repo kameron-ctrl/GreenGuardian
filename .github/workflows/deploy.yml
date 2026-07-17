@@ -108,6 +108,10 @@ jobs:
           # variables > Actions > Variables.
           NEXT_PUBLIC_API_URL: ${{ vars.NEXT_PUBLIC_API_URL }}
         run: |
+          if [ -z "$NEXT_PUBLIC_API_URL" ]; then
+            echo "::error::NEXT_PUBLIC_API_URL repository variable is not set. Set it under Settings > Secrets and variables > Actions > Variables, or the deployed frontend will have no backend endpoint."
+            exit 1
+          fi
           cd web
           npm run build
 
