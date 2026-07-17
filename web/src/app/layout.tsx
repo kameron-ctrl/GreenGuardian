@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
+import type { ReactNode } from "react";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Green Guardian — Plant Disease Diagnosis",
+  title: "Green Guardian · Plant Disease Diagnosis",
   description: "AI-powered plant disease detection. Upload a leaf photo and get an instant diagnosis.",
   icons: {
     icon: [
@@ -17,7 +18,7 @@ export const metadata: Metadata = {
 export default function RootLayout({
   children,
 }: {
-  children: React.ReactNode;
+  children: ReactNode;
 }) {
   return (
     <html lang="en">

@@ -59,7 +59,7 @@ export default function RecentScans({ scans, onClear }: Props) {
         padding: '20px 18px',
         textAlign: 'center',
       }}>
-        <p style={{ fontSize: 12, color: 'var(--text-faint)' }}>No scans yet — your history will appear here.</p>
+        <p style={{ fontSize: 12, color: 'var(--text-faint)' }}>No scans yet · your history will appear here.</p>
       </div>
     );
   }
