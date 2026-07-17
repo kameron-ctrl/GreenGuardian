@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { getPrediction } from '../lib/api';
-import { PredictionResponse } from '../types/prediction';
+import { PredictionResponse, ScanFeedback } from '../types/prediction';
 import DiagnoseForm from '../components/DiagnoseForm';
 import PredictionResult from '../components/PredictionResult';
 import RecentScans, { ScanRecord } from '../components/RecentScans';
@@ -12,6 +12,7 @@ export default function DiagnosePage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [scans, setScans] = useState<ScanRecord[]>([]);
+  const [currentScanId, setCurrentScanId] = useState<string | null>(null);
 
   const handleDiagnose = async (file: File) => {
     setLoading(true);
@@ -20,9 +21,11 @@ export default function DiagnosePage() {
     try {
       const prediction = await getPrediction(file);
       setResult(prediction);
+      const id = Date.now().toString();
+      setCurrentScanId(id);
       setScans((prev) => [
         {
-          id: Date.now().toString(),
+          id,
           label: prediction.label,
           confidence: prediction.confidence,
           timestamp: new Date(),
@@ -35,6 +38,15 @@ export default function DiagnosePage() {
     }
     setLoading(false);
   };
+
+  const handleFeedback = (feedback: ScanFeedback) => {
+    if (!currentScanId) return;
+    setScans((prev) => prev.map((scan) => (
+      scan.id === currentScanId ? { ...scan, feedback } : scan
+    )));
+  };
+
+  const currentScan = scans.find((scan) => scan.id === currentScanId);
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', background: 'var(--background)' }}>
@@ -187,12 +199,20 @@ export default function DiagnosePage() {
             </div>
           )}
 
-          {result && <PredictionResult result={result} scanHistory={scans.map(s => ({
-            label: s.label,
-            confidence: s.confidence,
-            timestamp: s.timestamp,
-            fileName: s.fileName,
-          }))} />}
+          {result && (
+            <PredictionResult
+              result={result}
+              feedback={currentScan?.feedback}
+              onFeedback={handleFeedback}
+              scanHistory={scans.map(s => ({
+                label: s.label,
+                confidence: s.confidence,
+                timestamp: s.timestamp,
+                fileName: s.fileName,
+                feedback: s.feedback,
+              }))}
+            />
+          )}
         </div>
 
       </div>
