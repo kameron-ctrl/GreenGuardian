@@ -30,12 +30,12 @@
 ---
 
 <p align="center">
-  <img src="web/public/screenshot.png" alt="Green Guardian — Plant Disease Diagnosis" width="100%" style="border-radius: 8px;" />
+  <img src="web/public/screenshot.png" alt="Green Guardian · Plant Disease Diagnosis" width="100%" style="border-radius: 8px;" />
 </p>
 
 ## About
 
-Green Guardian is a full-stack web application that uses a custom-trained PyTorch model to identify plant diseases from leaf photographs. The model was trained on the [PlantVillage](https://www.kaggle.com/datasets/emmarex/plantdisease) dataset and classifies 15 conditions across three plant types — tomato, potato, and bell pepper — returning real-time predictions with confidence levels.
+Green Guardian is a full-stack web application that uses a custom-trained PyTorch model to identify plant diseases from leaf photographs. The model was trained on the [PlantVillage](https://www.kaggle.com/datasets/emmarex/plantdisease) dataset and classifies 15 conditions across three plant types (tomato, potato, and bell pepper), returning real-time predictions with confidence levels.
 
 ### What It Does
 
@@ -51,7 +51,7 @@ Green Guardian is a full-stack web application that uses a custom-trained PyTorc
 | Frontend | Next.js 15, React 19, TypeScript, Tailwind CSS 4 |
 | Backend | FastAPI, Mangum (AWS Lambda adapter) |
 | ML Model | PyTorch, TorchVision (ResNet-based classifier) |
-| Dataset | [PlantVillage](https://www.kaggle.com/datasets/emmarex/plantdisease) — 15 classes |
+| Dataset | [PlantVillage](https://www.kaggle.com/datasets/emmarex/plantdisease), 15 classes |
 | Infrastructure | AWS Lambda, ECR, S3, CloudFront |
 | CI/CD | GitHub Actions (auto-deploy on push to `main`) |
 
@@ -118,9 +118,9 @@ NEXT_PUBLIC_API_URL=http://localhost:8000
 
 Deployment is fully automated via GitHub Actions. Pushing to `main` triggers the workflow in `.github/workflows/deploy.yml`, which:
 
-1. **Detects changes** — only rebuilds what changed (`web/` or `backend/`)
-2. **Backend** — builds a Docker image, pushes to ECR, and updates the Lambda function
-3. **Frontend** — runs `next build`, syncs the static export to S3, and invalidates the CloudFront cache
+1. **Detects changes**: only rebuilds what changed (`web/` or `backend/`)
+2. **Backend**: builds a Docker image, pushes to ECR, and updates the Lambda function
+3. **Frontend**: runs `next build`, syncs the static export to S3, and invalidates the CloudFront cache
 
 Required GitHub Secrets: `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_REGION`, `ECR_REPOSITORY`, `LAMBDA_FUNCTION_NAME`, `S3_BUCKET_NAME`, `CLOUDFRONT_DISTRIBUTION_ID`
 
