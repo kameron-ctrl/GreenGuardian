@@ -64,12 +64,18 @@ for epoch in range(epochs):
 
 
 #Save Model + Labels
-torch.save(model, "model.pt")
-print("Model saved to model.pt")
+model_dir = os.path.join(os.path.dirname(__file__), "model")
+os.makedirs(model_dir, exist_ok=True)
 
-os.makedirs("app/model", exist_ok=True)
-with open("app/model/labels.json", "w") as f:
+# Save the state_dict (weights only), matching how predictor.py loads it with
+# weights_only=True. Never save the full pickled module — that reintroduces the
+# arbitrary-code-execution risk on load.
+torch.save(model.state_dict(), os.path.join(model_dir, "model_state.pt"))
+print("Model weights saved to model/model_state.pt")
+
+with open(os.path.join(model_dir, "labels.json"), "w") as f:
     json.dump({i: cls for i, cls in enumerate(train_ds.classes)}, f, indent=2)
+print("Labels saved to model/labels.json")
 
 #Evaluation on Test Set
 model.eval()

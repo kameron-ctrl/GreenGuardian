@@ -83,7 +83,7 @@ The frontend is a statically exported Next.js app hosted on S3 behind CloudFront
 
 - Python 3.9+
 - Node.js 20+
-- `model.pt` in `backend/model/` (train with `python train.py` or provide your own)
+- `model_state.pt` in `backend/model/` (train with `python train.py` or provide your own)
 
 ### Backend
 
@@ -108,11 +108,17 @@ npm install
 npm run dev
 ```
 
-Open `http://localhost:3000`. By default the app points to the production API. To use your local backend, create a `.env.local` file in the `web/` directory:
+Open `http://localhost:3000`. The app requires `NEXT_PUBLIC_API_URL` to be set —
+there is no hardcoded fallback. Copy `web/.env.example` to `web/.env.local` and
+point it at your backend:
 
 ```
 NEXT_PUBLIC_API_URL=http://localhost:8000
 ```
+
+For deployments, set `NEXT_PUBLIC_API_URL` as a GitHub Actions **repository
+variable** (Settings → Secrets and variables → Actions → Variables); the deploy
+workflow injects it into the frontend build.
 
 ## Deployment
 
@@ -134,7 +140,7 @@ GreenGuardian/
 │   ├── model/
 │   │   ├── predictor.py     # PyTorch inference logic
 │   │   ├── labels.json      # Class label mapping
-│   │   └── model.pt         # Trained model weights
+│   │   └── model_state.pt   # Trained model weights (state_dict)
 │   ├── train.py             # Model training script
 │   ├── splitdataset.py      # Dataset splitting utility
 │   ├── Dockerfile.lambda    # Lambda container definition

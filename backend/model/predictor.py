@@ -1,5 +1,6 @@
 import torch
-from torchvision import transforms
+from torch import nn
+from torchvision import models, transforms
 from PIL import Image
 import json
 import os
@@ -7,7 +8,7 @@ import io
 import time
 
 
-MODEL_PATH = os.path.join(os.path.dirname(__file__), "model.pt")
+MODEL_PATH = os.path.join(os.path.dirname(__file__), "model_state.pt")
 LABELS_PATH = os.path.join(os.path.dirname(__file__), "labels.json")
 
 class Predictor:
@@ -21,15 +22,23 @@ class Predictor:
         if not os.path.exists(LABELS_PATH):
             raise FileNotFoundError(f"Labels not found at {LABELS_PATH}")
         
-        print(f"Loading model from {MODEL_PATH}")
-        model_load_start = time.time()
-        self.model = torch.load(MODEL_PATH, map_location=self.device)
-        self.model.eval()
-        print(f"Model loaded in {time.time() - model_load_start:.2f}s")
-        
         with open(LABELS_PATH) as f:
             self.labels = json.load(f)
-        
+
+        print(f"Loading model from {MODEL_PATH}")
+        model_load_start = time.time()
+        # Rebuild the architecture (ResNet18 + resized head) and load only the
+        # saved weights with weights_only=True. This avoids torch.load's arbitrary
+        # pickle execution path that a full-module checkpoint would require.
+        num_classes = len(self.labels)
+        self.model = models.resnet18(weights=None)
+        self.model.fc = nn.Linear(self.model.fc.in_features, num_classes)
+        state_dict = torch.load(MODEL_PATH, map_location=self.device, weights_only=True)
+        self.model.load_state_dict(state_dict)
+        self.model.to(self.device)
+        self.model.eval()
+        print(f"Model loaded in {time.time() - model_load_start:.2f}s")
+
         self.transforms = transforms.Compose([
             transforms.Resize((224, 224)),
             transforms.ToTensor(),
