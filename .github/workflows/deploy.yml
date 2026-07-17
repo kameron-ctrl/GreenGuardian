@@ -102,11 +102,11 @@ jobs:
 
       - name: Build Next.js app
         env:
-          # Supplied as a repository variable (not a secret — it ends up in the
-          # public client bundle anyway) so the endpoint is not hardcoded in the
-          # open-source source tree. Set it under Settings > Secrets and
-          # variables > Actions > Variables.
-          NEXT_PUBLIC_API_URL: ${{ vars.NEXT_PUBLIC_API_URL }}
+          # Supplied from either a repository Variable or Secret so it is not
+          # hardcoded in this open-source tree. A Variable is preferred (the URL
+          # ends up in the public client bundle anyway); a Secret also works.
+          # Set it under Settings > Secrets and variables > Actions.
+          NEXT_PUBLIC_API_URL: ${{ vars.NEXT_PUBLIC_API_URL || secrets.NEXT_PUBLIC_API_URL }}
         run: |
           if [ -z "$NEXT_PUBLIC_API_URL" ]; then
             echo "::error::NEXT_PUBLIC_API_URL repository variable is not set. Set it under Settings > Secrets and variables > Actions > Variables, or the deployed frontend will have no backend endpoint."
