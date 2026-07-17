@@ -87,11 +87,9 @@ Content-Security-Policy: default-src 'self'; img-src 'self' data:; connect-src '
 Tune `connect-src` to your API Gateway origin and `style-src`/`script-src` to
 what the app actually loads before enforcing CSP.
 
-## Repo hygiene follow-ups (non-blocking)
+## Repo hygiene
 
-- `backend/model/model.pt` (the old full-pickle checkpoint, 44 MB) is no longer
-  loaded by the app. Remove it from the repo/image once the state_dict model is
-  confirmed working in production.
-- `backend/model/__pycache__/*.pyc` are committed and should be untracked
-  (`git rm -r --cached backend/model/__pycache__`); `.gitignore` already ignores
+- The old full-pickle checkpoint (`model.pt`) has been removed; the app loads
+  only the `model_state.pt` state_dict.
+- Committed `__pycache__/*.pyc` files have been untracked; `.gitignore` ignores
   `__pycache__/` going forward.
