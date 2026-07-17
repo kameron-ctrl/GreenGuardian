@@ -5,25 +5,25 @@ import { PredictionResponse } from '../types/prediction';
 
 /* ── Label formatting ── */
 const LABEL_MAP: Record<string, string> = {
-  'Pepper__bell___Bacterial_spot': 'Bell Pepper — Bacterial Spot',
-  'Pepper__bell___healthy': 'Bell Pepper — Healthy',
-  'Potato___Early_blight': 'Potato — Early Blight',
-  'Potato___Late_blight': 'Potato — Late Blight',
-  'Potato___healthy': 'Potato — Healthy',
-  'Tomato_Bacterial_spot': 'Tomato — Bacterial Spot',
-  'Tomato_Early_blight': 'Tomato — Early Blight',
-  'Tomato_Late_blight': 'Tomato — Late Blight',
-  'Tomato_Leaf_Mold': 'Tomato — Leaf Mold',
-  'Tomato_Septoria_leaf_spot': 'Tomato — Septoria Leaf Spot',
-  'Tomato_Spider_mites_Two_spotted_spider_mite': 'Tomato — Spider Mites',
-  'Tomato__Target_Spot': 'Tomato — Target Spot',
-  'Tomato__Tomato_YellowLeaf__Curl_Virus': 'Tomato — Yellow Leaf Curl Virus',
-  'Tomato__Tomato_mosaic_virus': 'Tomato — Mosaic Virus',
-  'Tomato_healthy': 'Tomato — Healthy',
+  'Pepper__bell___Bacterial_spot': 'Bell Pepper · Bacterial Spot',
+  'Pepper__bell___healthy': 'Bell Pepper · Healthy',
+  'Potato___Early_blight': 'Potato · Early Blight',
+  'Potato___Late_blight': 'Potato · Late Blight',
+  'Potato___healthy': 'Potato · Healthy',
+  'Tomato_Bacterial_spot': 'Tomato · Bacterial Spot',
+  'Tomato_Early_blight': 'Tomato · Early Blight',
+  'Tomato_Late_blight': 'Tomato · Late Blight',
+  'Tomato_Leaf_Mold': 'Tomato · Leaf Mold',
+  'Tomato_Septoria_leaf_spot': 'Tomato · Septoria Leaf Spot',
+  'Tomato_Spider_mites_Two_spotted_spider_mite': 'Tomato · Spider Mites',
+  'Tomato__Target_Spot': 'Tomato · Target Spot',
+  'Tomato__Tomato_YellowLeaf__Curl_Virus': 'Tomato · Yellow Leaf Curl Virus',
+  'Tomato__Tomato_mosaic_virus': 'Tomato · Mosaic Virus',
+  'Tomato_healthy': 'Tomato · Healthy',
 };
 
 export function formatLabel(raw: string): string {
-  return LABEL_MAP[raw] || raw.replace(/_{2,}/g, ' — ').replace(/_/g, ' ');
+  return LABEL_MAP[raw] || raw.replace(/_{2,}/g, ' · ').replace(/_/g, ' ');
 }
 
 /* ── Disease info database ── */
@@ -32,7 +32,7 @@ const DISEASE_INFO: Record<string, {
   treatment: string[];
 }> = {
   default: {
-    about: 'Our AI has identified a condition in this leaf specimen. Examine the affected areas closely — early intervention gives the best chance of recovery.',
+    about: 'Our AI has identified a condition in this leaf specimen. Examine the affected areas closely; early intervention gives the best chance of recovery.',
     treatment: [
       'Remove and dispose of affected foliage immediately',
       'Apply appropriate fungicide or pesticide as recommended',
@@ -42,7 +42,7 @@ const DISEASE_INFO: Record<string, {
     ],
   },
   'early blight': {
-    about: 'Alternaria solani — fungal infection causing concentric ring lesions. Commonly appears on lower, older leaves first and spreads upward under warm, humid conditions.',
+    about: 'Alternaria solani: fungal infection causing concentric ring lesions. Commonly appears on lower, older leaves first and spreads upward under warm, humid conditions.',
     treatment: [
       'Remove and dispose of affected foliage immediately',
       'Apply copper-based fungicide every 7–10 days',
@@ -52,17 +52,17 @@ const DISEASE_INFO: Record<string, {
     ],
   },
   'late blight': {
-    about: 'Phytophthora infestans — aggressive oomycete causing water-soaked dark lesions on leaves and stems. Spreads extremely rapidly in cool, wet conditions and can destroy crops within days.',
+    about: 'Phytophthora infestans: aggressive oomycete causing water-soaked dark lesions on leaves and stems. Spreads extremely rapidly in cool, wet conditions and can destroy crops within days.',
     treatment: [
-      'Act immediately — late blight spreads fast',
+      'Act immediately: late blight spreads fast',
       'Apply systemic fungicide (chlorothalonil or mancozeb) every 5–7 days',
       'Remove severely infected plants entirely to protect neighbors',
       'Avoid overhead watering; water at soil level in the morning',
-      'Bag and destroy all infected material — never compost it',
+      'Bag and destroy all infected material; never compost it',
     ],
   },
   'leaf mold': {
-    about: 'Passalora fulva — causes pale green or yellow spots on the upper leaf surface with olive-green to grayish-purple mold underneath. Thrives in high-humidity greenhouse conditions.',
+    about: 'Passalora fulva: causes pale green or yellow spots on the upper leaf surface with olive-green to grayish-purple mold underneath. Thrives in high-humidity greenhouse conditions.',
     treatment: [
       'Reduce greenhouse humidity below 85%',
       'Remove affected leaves and dispose in sealed bags',
@@ -72,7 +72,7 @@ const DISEASE_INFO: Record<string, {
     ],
   },
   'bacterial spot': {
-    about: 'Xanthomonas species — causes small, dark, water-soaked lesions on leaves that may develop yellow halos. Spreads through splashing water, contaminated tools, and infected seed.',
+    about: 'Xanthomonas species: causes small, dark, water-soaked lesions on leaves that may develop yellow halos. Spreads through splashing water, contaminated tools, and infected seed.',
     treatment: [
       'Remove and destroy infected plant material',
       'Apply copper-based bactericide as a preventive spray',
@@ -82,27 +82,27 @@ const DISEASE_INFO: Record<string, {
     ],
   },
   'septoria': {
-    about: 'Septoria lycopersici — fungal leaf spot disease producing small circular spots with dark borders and gray centers. Tiny black fruiting bodies may be visible with magnification.',
+    about: 'Septoria lycopersici: fungal leaf spot disease producing small circular spots with dark borders and gray centers. Tiny black fruiting bodies may be visible with magnification.',
     treatment: [
       'Remove lower infected leaves to slow spread',
       'Apply fungicide (chlorothalonil or copper-based) every 7–10 days',
       'Mulch around plants to prevent soil splash',
       'Avoid overhead watering; water at soil level',
-      'Rotate crops — do not plant tomatoes in the same spot annually',
+      'Rotate crops; do not plant tomatoes in the same spot annually',
     ],
   },
   'spider mite': {
-    about: 'Tetranychus urticae — tiny arachnids that cause stippled, yellowing leaves with fine webbing on the underside. They thrive in hot, dry conditions and reproduce rapidly.',
+    about: 'Tetranychus urticae: tiny arachnids that cause stippled, yellowing leaves with fine webbing on the underside. They thrive in hot, dry conditions and reproduce rapidly.',
     treatment: [
       'Spray plants with a strong stream of water to dislodge mites',
       'Apply insecticidal soap or neem oil to both sides of leaves',
       'Introduce predatory mites (Phytoseiulus persimilis) as biocontrol',
-      'Increase humidity around plants — mites prefer dry conditions',
+      'Increase humidity around plants; mites prefer dry conditions',
       'Remove heavily infested leaves and dispose of them',
     ],
   },
   'target spot': {
-    about: 'Corynespora cassiicola — fungal disease causing brown lesions with concentric rings resembling a target. Can affect leaves, stems, and fruit in warm humid conditions.',
+    about: 'Corynespora cassiicola: fungal disease causing brown lesions with concentric rings resembling a target. Can affect leaves, stems, and fruit in warm humid conditions.',
     treatment: [
       'Remove and destroy affected plant parts',
       'Apply fungicide (chlorothalonil or mancozeb) preventively',
@@ -112,7 +112,7 @@ const DISEASE_INFO: Record<string, {
     ],
   },
   'curl virus': {
-    about: 'Tomato Yellow Leaf Curl Virus (TYLCV) — transmitted by whiteflies, causing severe leaf curling, yellowing, and stunted growth. Infected plants rarely recover and yield drops significantly.',
+    about: 'Tomato Yellow Leaf Curl Virus (TYLCV): transmitted by whiteflies, causing severe leaf curling, yellowing, and stunted growth. Infected plants rarely recover and yield drops significantly.',
     treatment: [
       'Remove and destroy infected plants promptly',
       'Control whitefly populations with insecticidal soap or neem oil',
@@ -122,9 +122,9 @@ const DISEASE_INFO: Record<string, {
     ],
   },
   'mosaic virus': {
-    about: 'Tomato Mosaic Virus (ToMV) — causes mottled light and dark green patterns on leaves, leaf distortion, and reduced fruit quality. Highly contagious through mechanical contact.',
+    about: 'Tomato Mosaic Virus (ToMV): causes mottled light and dark green patterns on leaves, leaf distortion, and reduced fruit quality. Highly contagious through mechanical contact.',
     treatment: [
-      'Remove and destroy infected plants — do not compost',
+      'Remove and destroy infected plants; do not compost',
       'Sanitize all tools, stakes, and hands with 10% bleach solution',
       'Avoid tobacco products near plants (cross-contamination risk)',
       'Use virus-free seed and resistant cultivars',
@@ -132,11 +132,11 @@ const DISEASE_INFO: Record<string, {
     ],
   },
   healthy: {
-    about: 'Great news — your plant looks healthy! No signs of disease were detected in this leaf sample. Continue your current care routine and keep monitoring regularly.',
+    about: 'Great news: your plant looks healthy! No signs of disease were detected in this leaf sample. Continue your current care routine and keep monitoring regularly.',
     treatment: [
       'Maintain regular watering appropriate for your plant species',
       'Fertilize seasonally with a balanced fertilizer',
-      'Monitor monthly — scan a new leaf to catch early signs',
+      'Monitor monthly; scan a new leaf to catch early signs',
       'Ensure good drainage to prevent root rot',
       'Check leaf undersides periodically for pests',
     ],

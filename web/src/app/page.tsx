@@ -48,6 +48,8 @@ export default function DiagnosePage() {
         alignItems: 'center',
         justifyContent: 'space-between',
         flexShrink: 0,
+        flexWrap: 'wrap',
+        gap: 12,
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <img
@@ -60,6 +62,39 @@ export default function DiagnosePage() {
           <span style={{ fontFamily: "'Faustina', Georgia, serif", fontSize: 17, color: 'var(--text-primary)', fontWeight: 600 }}>
             Green Guardian
           </span>
+        </div>
+
+        <div className="site-links">
+          <a
+            className="site-link"
+            href="https://github.com/kameron-ctrl/GreenGuardian"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Source
+          </a>
+          <span className="site-link-sep" aria-hidden="true">&middot;</span>
+          <a
+            className="site-link"
+            href="https://github.com/kameron-ctrl"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            GitHub
+          </a>
+          <span className="site-link-sep" aria-hidden="true">&middot;</span>
+          <a className="site-link" href="mailto:kameron1.benjamin@famu.edu">
+            Contact me
+          </a>
+          <span className="site-link-sep" aria-hidden="true">&middot;</span>
+          <a
+            className="site-link"
+            href="https://kameron-ctrl.github.io/portfolio/"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Portfolio
+          </a>
         </div>
       </nav>
 
@@ -80,7 +115,7 @@ export default function DiagnosePage() {
             fontSize: 10, fontWeight: 700, letterSpacing: '1.4px',
             color: 'var(--text-faint)', textTransform: 'uppercase',
           }}>
-            01 &mdash; Upload your leaf
+            01 &middot; Upload your leaf
           </span>
 
           <DiagnoseForm onDiagnose={handleDiagnose} loading={loading} />
@@ -104,7 +139,7 @@ export default function DiagnosePage() {
             fontSize: 10, fontWeight: 700, letterSpacing: '1.4px',
             color: 'var(--text-faint)', textTransform: 'uppercase',
           }}>
-            02 &mdash; Diagnosis
+            02 &middot; Diagnosis
           </span>
 
           {error && (
