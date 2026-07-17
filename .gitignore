@@ -11,3 +11,11 @@ CLAUDE.local.md
 # Python
 __pycache__/
 *.py[cod]
+
+# Environment files — never commit real secrets/config. Templates are allowed.
+.env
+.env.*
+!.env.example
+
+# Playwright MCP test artifacts
+.playwright-mcp/

@@ -2,9 +2,15 @@
   "Version": "2012-10-17",
   "Statement": [
     {
+      "Sid": "EcrAuthToken",
+      "Effect": "Allow",
+      "Action": "ecr:GetAuthorizationToken",
+      "Resource": "*"
+    },
+    {
+      "Sid": "EcrPushPullRepo",
       "Effect": "Allow",
       "Action": [
-        "ecr:GetAuthorizationToken",
         "ecr:BatchCheckLayerAvailability",
         "ecr:GetDownloadUrlForLayer",
         "ecr:BatchGetImage",
@@ -13,16 +19,17 @@
         "ecr:UploadLayerPart",
         "ecr:CompleteLayerUpload"
       ],
-      "Resource": "*"
+      "Resource": "arn:aws:ecr:*:*:repository/green-guardian-backend"
     },
     {
+      "Sid": "LambdaUpdateFunction",
       "Effect": "Allow",
       "Action": [
         "lambda:UpdateFunctionCode",
         "lambda:GetFunction",
         "lambda:GetFunctionConfiguration"
       ],
-      "Resource": "arn:aws:lambda:*:*:function:*"
+      "Resource": "arn:aws:lambda:*:*:function:green-guardian-api"
     }
   ]
 }
