@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { PredictionResponse } from '../types/prediction';
+import { PredictionResponse, ScanFeedback } from '../types/prediction';
 
 /* ── Label formatting ── */
 const LABEL_MAP: Record<string, string> = {
@@ -151,13 +151,121 @@ function getDiseaseInfo(label: string) {
   return DISEASE_INFO.default;
 }
 
+/* ── Feedback row ── */
+function FeedbackRow({ feedback, onFeedback }: {
+  feedback?: ScanFeedback;
+  onFeedback?: (feedback: ScanFeedback) => void;
+}) {
+  const [showCorrection, setShowCorrection] = useState(false);
+
+  if (feedback) {
+    return (
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: 8,
+        padding: '14px 22px',
+        fontSize: 13,
+        color: 'var(--text-muted)',
+      }}>
+        <span style={{ fontSize: 14 }}>{feedback.status === 'correct' ? '✓' : '🌱'}</span>
+        {feedback.status === 'correct'
+          ? 'Thanks for confirming.'
+          : 'Thanks — this helps it learn.'}
+      </div>
+    );
+  }
+
+  return (
+    <div style={{
+      background: 'var(--surface)',
+      borderRadius: 14,
+      border: '1px solid var(--border-strong)',
+      padding: '16px 22px',
+      display: 'flex',
+      flexDirection: 'column',
+      gap: 12,
+    }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' as const }}>
+        <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)' }}>
+          Was this diagnosis right?
+        </span>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <button
+            onClick={() => onFeedback?.({ status: 'correct' })}
+            style={{
+              fontSize: 12,
+              fontWeight: 600,
+              padding: '8px 14px',
+              borderRadius: 8,
+              border: '1px solid var(--border-strong)',
+              background: 'var(--surface-subtle)',
+              color: 'var(--text-primary)',
+              cursor: 'pointer',
+            }}
+          >
+            Looks right
+          </button>
+          <button
+            onClick={() => setShowCorrection(true)}
+            aria-expanded={showCorrection}
+            style={{
+              fontSize: 12,
+              fontWeight: 600,
+              padding: '8px 14px',
+              borderRadius: 8,
+              border: '1px solid var(--border-strong)',
+              background: 'var(--surface-subtle)',
+              color: 'var(--text-primary)',
+              cursor: 'pointer',
+            }}
+          >
+            Not quite
+          </button>
+        </div>
+      </div>
+
+      {showCorrection && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+          <label htmlFor="feedback-correction" style={{ fontSize: 12, color: 'var(--text-muted)' }}>
+            What was it actually?
+          </label>
+          <select
+            id="feedback-correction"
+            defaultValue=""
+            onChange={(e) => {
+              if (!e.target.value) return;
+              onFeedback?.({ status: 'incorrect', correctedLabel: e.target.value });
+            }}
+            style={{
+              fontSize: 13,
+              padding: '8px 10px',
+              borderRadius: 8,
+              border: '1px solid var(--border-strong)',
+              background: 'var(--background)',
+              color: 'var(--text-primary)',
+            }}
+          >
+            <option value="" disabled>Select the correct condition</option>
+            {Object.entries(LABEL_MAP).map(([raw, label]) => (
+              <option key={raw} value={raw}>{label}</option>
+            ))}
+          </select>
+        </div>
+      )}
+    </div>
+  );
+}
+
 /* ── Component ── */
 interface Props {
   result: PredictionResponse;
-  scanHistory?: { label: string; confidence: number; timestamp: Date; fileName: string }[];
+  feedback?: ScanFeedback;
+  onFeedback?: (feedback: ScanFeedback) => void;
+  scanHistory?: { label: string; confidence: number; timestamp: Date; fileName: string; feedback?: ScanFeedback }[];
 }
 
-export default function PredictionResult({ result, scanHistory = [] }: Props) {
+export default function PredictionResult({ result, feedback, onFeedback, scanHistory = [] }: Props) {
   const [activeTab, setActiveTab] = useState<'result' | 'history'>('result');
   const info = getDiseaseInfo(result.label);
   const pct = (result.confidence * 100).toFixed(1);
@@ -348,6 +456,8 @@ export default function PredictionResult({ result, scanHistory = [] }: Props) {
               ))}
             </div>
           </div>
+
+          <FeedbackRow feedback={feedback} onFeedback={onFeedback} />
         </div>
       ) : (
         /* History tab */
@@ -390,14 +500,21 @@ export default function PredictionResult({ result, scanHistory = [] }: Props) {
                       {scan.fileName} · {scan.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </p>
                   </div>
-                  <span style={{
-                    fontSize: 12,
-                    fontWeight: 700,
-                    fontFamily: 'monospace',
-                    color: 'var(--text-primary)',
-                  }}>
-                    {scanPct}%
-                  </span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    {scan.feedback && (
+                      <span style={{ fontSize: 13 }} title={scan.feedback.status === 'correct' ? 'Marked correct' : 'Marked incorrect'}>
+                        {scan.feedback.status === 'correct' ? '✓' : '🌱'}
+                      </span>
+                    )}
+                    <span style={{
+                      fontSize: 12,
+                      fontWeight: 700,
+                      fontFamily: 'monospace',
+                      color: 'var(--text-primary)',
+                    }}>
+                      {scanPct}%
+                    </span>
+                  </div>
                 </div>
               );
             })

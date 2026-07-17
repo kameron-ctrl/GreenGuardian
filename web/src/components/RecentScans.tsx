@@ -3,6 +3,7 @@
 'use client';
 
 import { formatLabel } from './PredictionResult';
+import { ScanFeedback } from '../types/prediction';
 
 export interface ScanRecord {
   id: string;
@@ -10,6 +11,36 @@ export interface ScanRecord {
   confidence: number;
   timestamp: Date;
   fileName: string;
+  feedback?: ScanFeedback;
+}
+
+function FeedbackBadge({ feedback }: { feedback?: ScanFeedback }) {
+  if (!feedback) return null;
+  const isCorrect = feedback.status === 'correct';
+  return (
+    <span
+      title={isCorrect ? 'Marked correct' : 'Marked incorrect'}
+      aria-label={isCorrect ? 'Marked correct' : 'Marked incorrect'}
+      style={{
+        width: 14,
+        height: 14,
+        borderRadius: '50%',
+        flexShrink: 0,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        background: isCorrect ? 'var(--scan-green)' : 'var(--disease-bar)',
+      }}
+    >
+      <svg width="8" height="8" viewBox="0 0 12 12" fill="none">
+        {isCorrect ? (
+          <path d="M2 6l3 3 5-6" stroke="#fff" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+        ) : (
+          <path d="M3 3l6 6M9 3l-6 6" stroke="#fff" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+        )}
+      </svg>
+    </span>
+  );
 }
 
 function formatTime(date: Date): string {
@@ -119,13 +150,15 @@ export default function RecentScans({ scans, onClear }: Props) {
                   {formatTime(scan.timestamp)}
                 </p>
               </div>
-              <span style={{
-                fontSize: 11, fontWeight: 700,
-                color: isHealthy ? 'var(--scan-green)' : 'var(--disease-bar)',
-                flexShrink: 0,
-              }}>
-                {pct}%
-              </span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
+                <FeedbackBadge feedback={scan.feedback} />
+                <span style={{
+                  fontSize: 11, fontWeight: 700,
+                  color: isHealthy ? 'var(--scan-green)' : 'var(--disease-bar)',
+                }}>
+                  {pct}%
+                </span>
+              </div>
             </div>
           );
         })}
