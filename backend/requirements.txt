@@ -6,3 +6,8 @@ torchvision==0.16.0
 pillow==10.4.0
 python-multipart==0.0.33
 mangum==0.17.0
+pillow==10.1.0
+python-multipart==0.0.6
+mangum==0.17.0
+# torch 2.1 needs packaging at startup (it used to come from setuptools in the Lambda image).
+packaging>=23
