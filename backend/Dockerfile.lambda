@@ -1,7 +1,14 @@
 FROM public.ecr.aws/lambda/python:3.11
 
+# Lambda has no GPU. The default PyPI torch wheel bundles ~2 GB of CUDA libraries,
+# which made the image ~3 GB and pushed cold starts past the API Gateway 29s limit.
+# Ask for the CPU-only builds alongside requirements.txt in a single resolve, so
+# the +cpu wheels satisfy the ==2.1.0 / ==0.16.0 pins and every other pin in
+# requirements.txt (numpy, pillow, ...) still applies to torch's dependencies.
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt \
+      torch==2.1.0+cpu torchvision==0.16.0+cpu \
+      --extra-index-url https://download.pytorch.org/whl/cpu
 
 COPY main.py ${LAMBDA_TASK_ROOT}/
 COPY schemas.py ${LAMBDA_TASK_ROOT}/
