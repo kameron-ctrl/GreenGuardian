@@ -101,7 +101,7 @@ export default function DiagnosePage() {
           <span className="site-link-sep" aria-hidden="true">&middot;</span>
           <a
             className="site-link"
-            href="https://kameron-ctrl.github.io/portfolio/"
+            href="https://kameron-ctrl.com"
             target="_blank"
             rel="noopener noreferrer"
           >
